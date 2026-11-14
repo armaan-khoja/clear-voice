@@ -250,6 +250,8 @@ for name, df in {"headline": h, "leakage": lk, "per_speaker": ps, "worst_clips":
 demo = pick_demo_clips(ft, per_severity=5).rename(columns={"hyp": "Clear Voice"})
 for s, df in zs.items():
     demo = demo.merge(df[["row_id", "hyp"]].rename(columns={"hyp": s}), on="row_id", how="left")
+meta = pd.read_pickle(f"{WORK}/meta.pkl")  # saved by notebook 1: where each clip sits in the dataset files
+demo = demo.merge(meta[["row_id", "file_idx", "row_in_file"]], on="row_id", how="left")
 demo.to_csv(f"{R}/demo_clips.csv", index=False)
 
 with open(f"{R}/summary.md", "w") as f:
@@ -257,6 +259,26 @@ with open(f"{R}/summary.md", "w") as f:
         f.write(f"## {name}\\n\\n{df.round(3).to_markdown(index=False)}\\n\\n")
 for png in sorted(glob.glob(f"{R}/figures/*.png")):
     display(Image(png))'''),
+            ("md", "**Publish the demo** (optional). Creates a public Hugging Face Space under your account with the app, "
+                   "these results and figures. Audio is not uploaded: the app fetches clips from the TORGO dataset. "
+                   "Needs your `HF_TOKEN` secret and both models uploaded from notebook 3."),
+            ("code", '''DEPLOY_SPACE = False  # True publishes the demo as a public Hugging Face Space
+if DEPLOY_SPACE:
+    import shutil, tempfile
+    from huggingface_hub import HfApi, whoami
+    user = whoami()["name"]
+    space = f"{user}/clear-voice"
+    stage = os.path.join(tempfile.mkdtemp(), "space")
+    shutil.copytree("app", stage, ignore=shutil.ignore_patterns("__pycache__", "flagged"))
+    shutil.copytree("clearvoice", f"{stage}/clearvoice", ignore=shutil.ignore_patterns("__pycache__"))
+    shutil.copy(f"{R}/demo_clips.csv", stage)
+    shutil.copy(f"{R}/summary.md", stage)
+    shutil.copytree(f"{R}/figures", f"{stage}/figures")
+    api = HfApi()
+    api.create_repo(space, repo_type="space", space_sdk="gradio", exist_ok=True)
+    api.add_space_variable(space, "CV_MODEL_A", f"{user}/clear-voice-holda")
+    api.upload_folder(folder_path=stage, repo_id=space, repo_type="space")
+    print("Demo: https://huggingface.co/spaces/" + space)'''),
         ],
     ),
 }

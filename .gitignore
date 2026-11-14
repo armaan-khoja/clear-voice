@@ -14,3 +14,6 @@ models/
 *.bin
 flagged/
 work/
+app/demo_clips.csv
+app/summary.md
+app/figures/

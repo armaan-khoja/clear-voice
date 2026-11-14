@@ -1,0 +1,9 @@
+torch
+transformers==5.23.0
+huggingface_hub
+pyarrow
+pandas
+numpy
+scipy
+soundfile
+jiwer==4.0.0
