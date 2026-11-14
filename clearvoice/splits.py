@@ -1,0 +1,88 @@
+"""Leakage-safe splits: unseen sentences, unseen speakers, one copy per utterance when scoring."""
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+SEED = 42
+
+# Each fold: two severe dysarthric speakers, one mid, one mild, plus controls.
+FOLDS = {
+    "A": {"dys": ["F01", "M01", "F03", "M03"], "ctl": ["FC01", "MC01", "MC02"]},
+    "B": {"dys": ["M02", "M04", "M05", "F04"], "ctl": ["FC02", "FC03", "MC03", "MC04"]},
+}
+SPLIT_COLUMNS = ["row_id", "path", "speaker", "utt_key", "mic", "prompt_type", "duration"]
+
+
+def assign_prompt_splits(meta: pd.DataFrame, seed: int = SEED) -> dict:
+    """Map each unique normalised prompt to 'train' (70%), 'val' (10%) or 'test' (20%), per prompt type."""
+    rng = np.random.default_rng(seed)
+    out = {}
+    for _, group in meta.groupby("prompt_type"):
+        prompts = sorted(group["text_norm"].unique())
+        rng.shuffle(prompts)
+        n_test, n_val = round(0.2 * len(prompts)), round(0.1 * len(prompts))
+        for i, p in enumerate(prompts):
+            out[p] = "test" if i < n_test else "val" if i < n_test + n_val else "train"
+    return out
+
+
+def pick_eval_copies(df: pd.DataFrame) -> pd.DataFrame:
+    """Keep one row per utterance, preferring the head microphone."""
+    order = df.assign(_pref=(df["mic"] != "headMic").astype(int)).sort_values(["utt_key", "_pref", "row_id"])
+    return order.drop_duplicates("utt_key").drop(columns="_pref").sort_values("row_id").reset_index(drop=True)
+
+
+def _speakers(fold: str) -> list:
+    return FOLDS[fold]["dys"] + FOLDS[fold]["ctl"]
+
+
+def fold_splits(meta: pd.DataFrame, prompt_split: dict, heldout: str) -> dict:
+    """Splits for the model that never hears the speakers of fold `heldout`."""
+    other = "B" if heldout == "A" else "A"
+    ps = meta["text_norm"].map(prompt_split)
+    held, train_spk = meta["speaker"].isin(_speakers(heldout)), meta["speaker"].isin(_speakers(other))
+    return {
+        "train": meta[train_spk & (ps == "train")].reset_index(drop=True),
+        "val": pick_eval_copies(meta[train_spk & (ps == "val")]),
+        "test_seen": pick_eval_copies(meta[held & (ps == "train")]),
+        "test_strict": pick_eval_copies(meta[held & (ps == "test")]),
+        "test_newsent": pick_eval_copies(meta[train_spk & (ps == "test")]),
+    }
+
+
+def random_splits(meta: pd.DataFrame, seed: int = SEED) -> dict:
+    """Deliberately leaky 80/10/10 split over rows, ignoring speakers and microphone copies."""
+    idx = np.random.default_rng(seed).permutation(len(meta))
+    n_test, n_val = round(0.1 * len(meta)), round(0.1 * len(meta))
+    take = lambda ix: meta.iloc[np.sort(ix)].reset_index(drop=True)  # noqa: E731
+    return {"train": take(idx[n_test + n_val:]), "val": take(idx[n_test:n_test + n_val]), "test": take(idx[:n_test])}
+
+
+def personal_subsets(meta: pd.DataFrame, prompt_split: dict, speaker: str,
+                     minutes=(2, 5, 10), seed: int = SEED) -> dict:
+    """Nested sets of one speaker's own training-prompt clips reaching k minutes, or 'capped' if too few."""
+    mine = meta[(meta["speaker"] == speaker) & (meta["text_norm"].map(prompt_split) == "train")]
+    pool = pick_eval_copies(mine)
+    pool = pool.iloc[np.random.default_rng(seed).permutation(len(pool))].reset_index(drop=True)
+    cum = pool["duration"].cumsum().to_numpy()
+    out = {}
+    for k in minutes:
+        if len(cum) == 0 or cum[-1] < k * 60:
+            out[k] = "capped"
+        else:
+            out[k] = pool.iloc[: int(np.searchsorted(cum, k * 60)) + 1].copy()
+    return out
+
+
+def write_splits(splits: dict, out_dir, name: str) -> None:
+    """Write each part as `{name}_{part}.csv` with row indices and metadata only (no transcripts)."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for part, df in splits.items():
+        if isinstance(df, pd.DataFrame):
+            df[SPLIT_COLUMNS].to_csv(out_dir / f"{name}_{part}.csv", index=False)
+
+
+def read_split(out_dir, name: str, part: str) -> pd.DataFrame:
+    return pd.read_csv(Path(out_dir) / f"{name}_{part}.csv")
