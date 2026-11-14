@@ -14,6 +14,11 @@ LIBRISPEECH = ("openslr/librispeech_asr", "clean/test/0000.parquet", "71cacbfb7e
 _META_KEEP = ["row_id", "speaker", "severity", "is_dysarthric", "prompt_type", "text", "gender"]
 
 
+def read_preds(path) -> pd.DataFrame:
+    """Read a predictions CSV keeping empty or 'null'-looking transcripts as text, not NaN."""
+    return pd.read_csv(path, keep_default_na=False, na_values=[])
+
+
 def load_torgo(work_dir) -> tuple:
     """Download the parquet files and load metadata, cached as a pickle in `work_dir`."""
     parquets = download_parquets()

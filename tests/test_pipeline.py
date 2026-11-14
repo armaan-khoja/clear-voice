@@ -43,3 +43,14 @@ def test_librispeech_check_scores_a_local_parquet(tmp_path):
     model, processor = load_model("openai/whisper-tiny")
     r = librispeech_check(model, processor, n=2, parquet_path=path)
     assert r["n"] == 2 and r["wer"] >= 0
+
+
+def test_read_preds_keeps_empty_and_null_looking_outputs_as_text(tmp_path):
+    from clearvoice.pipeline import read_preds
+
+    df = pd.DataFrame({"row_id": [1, 2, 3], "speaker": ["M01"] * 3, "is_dysarthric": [True] * 3,
+                       "ref": ["yes", "no", "null"], "hyp": ["", "null", "NA"]})
+    df.to_csv(tmp_path / "p.csv", index=False)
+    back = read_preds(tmp_path / "p.csv")
+    assert list(back["hyp"]) == ["", "null", "NA"] and list(back["ref"]) == ["yes", "no", "null"]
+    assert back["is_dysarthric"].dtype == bool

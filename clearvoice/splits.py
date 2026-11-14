@@ -1,10 +1,12 @@
 """Leakage-safe splits: unseen sentences, unseen speakers, one copy per utterance when scoring."""
+from difflib import SequenceMatcher
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 SEED = 42
+NEAR_DUPLICATE = 0.8  # prompts more similar than this are treated as one sentence
 
 # Each fold: two severe dysarthric speakers, one mid, one mild, plus controls.
 FOLDS = {
@@ -15,16 +17,52 @@ MAX_SECONDS = 30.0  # Whisper hears at most 30 s; TORGO has 2 clips of ~3 minute
 SPLIT_COLUMNS = ["row_id", "path", "speaker", "utt_key", "mic", "prompt_type", "duration"]
 
 
+def prompt_clusters(prompts: list) -> list:
+    """Group prompts that are near-duplicates (similarity above NEAR_DUPLICATE), e.g. 'as i choose' / 'as i chose'.
+
+    TORGO has transcript variants of the same sentence; splitting them apart would leak test sentences into training.
+    """
+    parent = {p: p for p in prompts}
+
+    def root(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    sm = SequenceMatcher(autojunk=False)
+    for i, a in enumerate(prompts):
+        sm.set_seq2(a)
+        for b in prompts[i + 1:]:
+            sm.set_seq1(b)
+            if sm.real_quick_ratio() > NEAR_DUPLICATE and sm.quick_ratio() > NEAR_DUPLICATE \
+                    and sm.ratio() > NEAR_DUPLICATE:
+                parent[root(b)] = root(a)
+    groups = {}
+    for p in prompts:
+        groups.setdefault(root(p), []).append(p)
+    return [sorted(g) for g in sorted(groups.values(), key=lambda g: min(g))]
+
+
 def assign_prompt_splits(meta: pd.DataFrame, seed: int = SEED) -> dict:
-    """Map each unique normalised prompt to 'train' (70%), 'val' (10%) or 'test' (20%), per prompt type."""
+    """Map each unique normalised prompt to 'train' (70%), 'val' (10%) or 'test' (20%), per prompt type.
+
+    Near-duplicate prompts are kept together in one split.
+    """
     rng = np.random.default_rng(seed)
     out = {}
     for _, group in meta.groupby("prompt_type"):
-        prompts = sorted(group["text_norm"].unique())
-        rng.shuffle(prompts)
-        n_test, n_val = round(0.2 * len(prompts)), round(0.1 * len(prompts))
-        for i, p in enumerate(prompts):
-            out[p] = "test" if i < n_test else "val" if i < n_test + n_val else "train"
+        clusters = prompt_clusters(sorted(group["text_norm"].unique()))
+        rng.shuffle(clusters)
+        n = sum(len(c) for c in clusters)
+        n_test, n_val = round(0.2 * n), round(0.1 * n)
+        counts = {"test": 0, "val": 0}
+        for cluster in clusters:
+            split = "test" if counts["test"] < n_test else "val" if counts["val"] < n_val else "train"
+            if split in counts:
+                counts[split] += len(cluster)
+            for p in cluster:
+                out[p] = split
     return out
 
 

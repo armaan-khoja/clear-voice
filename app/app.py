@@ -67,7 +67,9 @@ def transcribe_live(x):
 
 
 def load_clips() -> pd.DataFrame:
-    return pd.read_csv(CLIPS_CSV) if Path(CLIPS_CSV).exists() else pd.DataFrame()
+    if not Path(CLIPS_CSV).exists():
+        return pd.DataFrame()
+    return pd.read_csv(CLIPS_CSV, keep_default_na=False, na_values=[])  # an empty transcript stays empty
 
 
 def clip_label(row) -> str:

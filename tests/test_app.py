@@ -49,3 +49,14 @@ def test_live_transcription_says_when_the_fine_tuned_model_is_missing(monkeypatc
     monkeypatch.setattr(demo_app, "_transcribe_with", lambda name, audio: f"[{name}]")
     stock, cv = demo_app.transcribe_live((16000, np.zeros(16000, dtype=np.int16)))
     assert stock == "[openai/whisper-small]" and "not loaded" in cv
+
+
+def test_show_clip_shows_an_empty_transcript_as_empty_not_nan(monkeypatch, tmp_path):
+    path = _clips(tmp_path)
+    df = pd.read_csv(path)
+    df.loc[0, "whisper-small"] = ""
+    df.to_csv(path, index=False)
+    monkeypatch.setattr(demo_app, "CLIPS_CSV", path)
+    monkeypatch.setattr(demo_app, "clip_audio", lambda row: (16000, np.zeros(10, dtype=np.float32)))
+    _, _, small, _, _ = demo_app.show_clip(demo_app.clip_label(demo_app.load_clips().iloc[0]))
+    assert small == ""

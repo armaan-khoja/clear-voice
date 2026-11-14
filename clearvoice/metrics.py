@@ -10,7 +10,7 @@ from .text import normalize
 
 def score(refs: list, hyps: list) -> dict:
     """Corpus-level WER and CER after normalising both sides. Empty references are dropped and counted."""
-    return _score_normed([normalize(r or "") for r in refs], [normalize(h or "") for h in hyps])
+    return _score_normed([normalize(r) for r in refs], [normalize(h) for h in hyps])
 
 
 def _score_normed(refs: list, hyps: list) -> dict:
@@ -39,7 +39,7 @@ def table(df: pd.DataFrame, by: list) -> pd.DataFrame:
 def speaker_bootstrap(df: pd.DataFrame, metric: str = "wer", n_boot: int = 1000, seed: int = 42) -> tuple:
     """95% interval for a corpus metric, resampling whole speakers with replacement."""
     rng = np.random.default_rng(seed)
-    df = df.assign(ref=[normalize(r or "") for r in df["ref"]], hyp=[normalize(h or "") for h in df["hyp"]])
+    df = df.assign(ref=[normalize(r) for r in df["ref"]], hyp=[normalize(h) for h in df["hyp"]])
     by_spk = {s: g for s, g in df.groupby("speaker")}
     speakers = list(by_spk)
     stats = []

@@ -6,8 +6,11 @@ from clearvoice.splits import (
 )
 
 SPEAKERS = {"F01": True, "M02": True, "FC01": False, "FC02": False}  # F01, FC01 in fold A; M02, FC02 in fold B
-WORDS = [f"word{i}" for i in range(20)]
-SENTS = [f"this is sentence {i}" for i in range(10)]
+WORDS = ["apple", "river", "stone", "cloud", "tiger", "piano", "quick", "zebra", "jacket", "mouse",
+         "grape", "honey", "flute", "candle", "orbit", "violin", "badge", "wheat", "kettle", "sponge"]
+SENTS = ["the quick brown fox jumps", "she had your dark suit", "an oily rag like that",
+         "please call stella soon", "my grandfather likes walking", "rain falls on the plain in spain",
+         "we ate pizza at noon", "dogs bark at the mailman", "turn left at the bridge", "seven green bottles stood"]
 
 
 def make_meta():
@@ -124,3 +127,23 @@ def test_clips_longer_than_30_seconds_are_never_used():
         if isinstance(v, pd.DataFrame):
             used |= set(v["row_id"])
     assert not used & long_ids
+
+
+def test_fixture_prompts_are_not_near_duplicates_of_each_other():
+    from difflib import SequenceMatcher
+    for group in (WORDS, SENTS):
+        for i, a in enumerate(group):
+            for b in group[i + 1:]:
+                assert SequenceMatcher(None, a, b).ratio() <= 0.8, (a, b)
+
+
+def test_near_duplicate_prompts_always_share_a_split():
+    meta = make_meta()
+    variant = meta[meta["text_norm"] == "my grandfather likes walking"].copy()
+    variant["text_norm"] = "my grandfather liked walking"
+    variant["row_id"] += 10_000
+    variant["utt_key"] = variant["utt_key"] + "v"
+    meta = pd.concat([meta, variant], ignore_index=True)
+    for seed in range(20):
+        ps = assign_prompt_splits(meta, seed=seed)
+        assert ps["my grandfather likes walking"] == ps["my grandfather liked walking"], seed

@@ -8,7 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from clearvoice.data import download_parquets, load_metadata  # noqa: E402
 from clearvoice.splits import (  # noqa: E402
-    FOLDS, assign_prompt_splits, fold_splits, personal_subsets, random_splits, write_splits,
+    FOLDS, NEAR_DUPLICATE, assign_prompt_splits, fold_splits, personal_subsets, prompt_clusters, random_splits,
+    write_splits,
 )
 
 # Personalisation: one severe and one moderate speaker, both in fold A (stretch: M03 mild, M04 severe).
@@ -18,9 +19,19 @@ cache = ROOT / ".superpowers" / "meta.pkl"
 meta = pd.read_pickle(cache) if cache.exists() else load_metadata(download_parquets())
 ps = assign_prompt_splits(meta)
 out = ROOT / "splits"
+for old in out.glob("*.csv"):  # start clean so no stale split (e.g. a now-capped personal size) survives
+    old.unlink()
 lines = ["", "## Splits (seed 42)", ""]
 counts = pd.Series(ps).value_counts()
 lines += [f"Prompts: train {counts['train']}, val {counts['val']}, test {counts['test']}", ""]
+merged = [c for t, g in meta.groupby("prompt_type") for c in prompt_clusters(sorted(g["text_norm"].unique())) if len(c) > 1]
+lines += [f"Near-duplicate prompt groups kept in one split (similarity > {NEAR_DUPLICATE}): {len(merged)}, "
+          f"e.g. {merged[:3]}", ""]
+from difflib import SequenceMatcher  # noqa: E402
+train_p = [p for p, v in ps.items() if v == "train"]
+leaks = [p for p, v in ps.items() if v != "train"
+         and any(SequenceMatcher(None, p, t).ratio() > NEAR_DUPLICATE for t in train_p)]
+lines += [f"Validation or test prompts more than {NEAR_DUPLICATE} similar to a training prompt: {len(leaks)}", ""]
 
 for held in FOLDS:
     s = fold_splits(meta, ps, held)

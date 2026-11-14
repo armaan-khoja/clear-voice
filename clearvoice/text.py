@@ -12,9 +12,9 @@ def _tokenizer():
     return WhisperTokenizer.from_pretrained("openai/whisper-tiny")
 
 
-def normalize(s: str) -> str:
-    """Normalise text the same way for references and Whisper outputs."""
-    if not s or not s.strip():
+def normalize(s) -> str:
+    """Normalise text the same way for references and Whisper outputs. Missing values count as empty."""
+    if not isinstance(s, str) or not s.strip():
         return ""
     return " ".join(_tokenizer().normalize(s).split())
 

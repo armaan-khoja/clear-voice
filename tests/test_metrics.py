@@ -54,3 +54,14 @@ def test_bootstrap_interval_brackets_the_point_estimate():
     lo, hi = speaker_bootstrap(df, "wer", n_boot=200)
     point = score(list(df["ref"]), list(df["hyp"]))["wer"]
     assert lo <= point <= hi
+
+
+def test_missing_output_read_back_as_nan_scores_as_empty():
+    assert score(["hello world"], [float("nan")])["wer"] == pytest.approx(1.0)
+
+
+def test_bootstrap_survives_missing_outputs():
+    df = _preds()
+    df.loc[0, "hyp"] = float("nan")
+    lo, hi = speaker_bootstrap(df, "wer", n_boot=50)
+    assert lo <= hi

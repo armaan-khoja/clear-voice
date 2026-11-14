@@ -15,3 +15,7 @@ def test_prompt_type_single_word():
 
 def test_prompt_type_sentence():
     assert prompt_type("the quick brown fox") == "sentence"
+
+
+def test_normalize_treats_missing_values_as_empty():
+    assert normalize(float("nan")) == "" and normalize(None) == ""
