@@ -56,7 +56,7 @@ Prompts: train 671, val 96, test 192
 |:-------------|--------:|-----------:|-------------------:|----------:|
 | train        |    7149 |          8 |               1939 |     337   |
 | val          |     509 |          8 |                137 |      23.4 |
-| test_seen    |    2387 |          7 |               1031 |     125.3 |
+| test_seen    |    2387 |          7 |               1031 |     119.1 |
 | test_strict  |     673 |          7 |                293 |      34.6 |
 | test_newsent |    1158 |          8 |                336 |      56.6 |
 
@@ -76,7 +76,7 @@ Strict test clips per held-out speaker (fold A):
 
 | part         |   clips |   speakers |   dysarthric clips |   minutes |
 |:-------------|--------:|-----------:|-------------------:|----------:|
-| train        |    4601 |          7 |               2057 |     245.6 |
+| train        |    4599 |          7 |               2055 |     239.4 |
 | val          |     288 |          7 |                118 |      14.1 |
 | test_seen    |    4060 |          8 |               1206 |     194.5 |
 | test_strict  |    1158 |          8 |                336 |      56.6 |
@@ -99,7 +99,7 @@ Strict test clips per held-out speaker (fold B):
 
 | speaker   | 2 min    | 5 min     | 10 min    | 20 min    |
 |:----------|:---------|:----------|:----------|:----------|
-| M01       | 38 clips | 43 clips  | 131 clips | capped    |
-| F03       | 54 clips | 132 clips | 182 clips | capped    |
+| M01       | 37 clips | 89 clips  | 174 clips | capped    |
+| F03       | 50 clips | 128 clips | 251 clips | capped    |
 | M03       | 43 clips | 105 clips | 207 clips | capped    |
 | M04       | 29 clips | 76 clips  | 145 clips | 264 clips |

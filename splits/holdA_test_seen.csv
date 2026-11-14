@@ -1356,6 +1356,7 @@ row_id,path,speaker,utt_key,mic,prompt_type,duration
 7686,MC01_1_headMic_0322.wav,MC01,MC01_1_0322,headMic,word,2.855
 7687,MC01_1_headMic_0218.wav,MC01,MC01_1_0218,headMic,word,3.545
 13004,M01_3_arrayMic_0219.wav,M01,M01_3_0219,arrayMic,word,1.8
+13237,M01_3_arrayMic_0180.wav,M01,M01_3_0180,arrayMic,word,2.25
 13285,M01_3_headMic_0081.wav,M01,M01_3_0081,headMic,word,1.395
 13288,M01_3_headMic_0260.wav,M01,M01_3_0260,headMic,word,2.177
 13289,M01_3_headMic_0090.wav,M01,M01_3_0090,headMic,word,1.671
@@ -1481,7 +1482,6 @@ row_id,path,speaker,utt_key,mic,prompt_type,duration
 13456,M01_3_headMic_0285.wav,M01,M01_3_0285,headMic,word,1.728
 13457,M01_3_headMic_0275.wav,M01,M01_3_0275,headMic,sentence,5.703
 13458,M01_3_headMic_0141.wav,M01,M01_3_0141,headMic,word,1.478
-13459,M01_3_headMic_0180.wav,M01,M01_3_0180,headMic,word,179.943
 13461,M01_3_headMic_0106.wav,M01,M01_3_0106,headMic,word,1.752
 13464,M01_3_headMic_0239.wav,M01,M01_3_0239,headMic,sentence,5.418
 13467,M01_3_headMic_0158.wav,M01,M01_3_0158,headMic,word,1.724
@@ -2237,6 +2237,7 @@ row_id,path,speaker,utt_key,mic,prompt_type,duration
 16168,F03_3_headMic_0085.wav,F03,F03_3_0085,headMic,word,1.3
 16170,F03_3_headMic_0121.wav,F03,F03_3_0121,headMic,sentence,2.285
 16171,F03_3_headMic_0057.wav,F03,F03_3_0057,headMic,word,1.865
+16317,F03_1_arrayMic_0118.wav,F03,F03_1_0118,arrayMic,word,1.35
 16362,F03_1_headMic_0106.wav,F03,F03_1_0106,headMic,word,0.642
 16364,F03_1_headMic_0108.wav,F03,F03_1_0108,headMic,word,1.186
 16365,F03_1_headMic_0078.wav,F03,F03_1_0078,headMic,word,0.893
@@ -2379,7 +2380,6 @@ row_id,path,speaker,utt_key,mic,prompt_type,duration
 16537,F03_1_headMic_0038.wav,F03,F03_1_0038,headMic,word,1.809
 16539,F03_1_headMic_0137.wav,F03,F03_1_0137,headMic,word,0.949
 16540,F03_1_headMic_0098.wav,F03,F03_1_0098,headMic,word,0.935
-16541,F03_1_headMic_0118.wav,F03,F03_1_0118,headMic,word,193.829
 16542,F03_1_headMic_0005.wav,F03,F03_1_0005,headMic,word,1.143
 16544,F03_1_headMic_0055.wav,F03,F03_1_0055,headMic,sentence,4.019
 16545,F03_1_headMic_0033.wav,F03,F03_1_0033,headMic,word,2.691

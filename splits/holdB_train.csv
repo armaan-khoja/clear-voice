@@ -2862,7 +2862,6 @@ row_id,path,speaker,utt_key,mic,prompt_type,duration
 13456,M01_3_headMic_0285.wav,M01,M01_3_0285,headMic,word,1.728
 13457,M01_3_headMic_0275.wav,M01,M01_3_0275,headMic,sentence,5.703
 13458,M01_3_headMic_0141.wav,M01,M01_3_0141,headMic,word,1.478
-13459,M01_3_headMic_0180.wav,M01,M01_3_0180,headMic,word,179.943
 13461,M01_3_headMic_0106.wav,M01,M01_3_0106,headMic,word,1.752
 13464,M01_3_headMic_0239.wav,M01,M01_3_0239,headMic,sentence,5.418
 13467,M01_3_headMic_0158.wav,M01,M01_3_0158,headMic,word,1.724
@@ -4593,7 +4592,6 @@ row_id,path,speaker,utt_key,mic,prompt_type,duration
 16537,F03_1_headMic_0038.wav,F03,F03_1_0038,headMic,word,1.809
 16539,F03_1_headMic_0137.wav,F03,F03_1_0137,headMic,word,0.949
 16540,F03_1_headMic_0098.wav,F03,F03_1_0098,headMic,word,0.935
-16541,F03_1_headMic_0118.wav,F03,F03_1_0118,headMic,word,193.829
 16542,F03_1_headMic_0005.wav,F03,F03_1_0005,headMic,word,1.143
 16544,F03_1_headMic_0055.wav,F03,F03_1_0055,headMic,sentence,4.019
 16545,F03_1_headMic_0033.wav,F03,F03_1_0033,headMic,word,2.691

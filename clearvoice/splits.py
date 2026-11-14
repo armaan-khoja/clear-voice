@@ -11,6 +11,7 @@ FOLDS = {
     "A": {"dys": ["F01", "M01", "F03", "M03"], "ctl": ["FC01", "MC01", "MC02"]},
     "B": {"dys": ["M02", "M04", "M05", "F04"], "ctl": ["FC02", "FC03", "MC03", "MC04"]},
 }
+MAX_SECONDS = 30.0  # Whisper hears at most 30 s; TORGO has 2 clips of ~3 minutes holding one word.
 SPLIT_COLUMNS = ["row_id", "path", "speaker", "utt_key", "mic", "prompt_type", "duration"]
 
 
@@ -33,6 +34,11 @@ def pick_eval_copies(df: pd.DataFrame) -> pd.DataFrame:
     return order.drop_duplicates("utt_key").drop(columns="_pref").sort_values("row_id").reset_index(drop=True)
 
 
+def usable(meta: pd.DataFrame) -> pd.DataFrame:
+    """Drop clips longer than Whisper's 30-second window."""
+    return meta[meta["duration"] <= MAX_SECONDS]
+
+
 def _speakers(fold: str) -> list:
     return FOLDS[fold]["dys"] + FOLDS[fold]["ctl"]
 
@@ -40,6 +46,7 @@ def _speakers(fold: str) -> list:
 def fold_splits(meta: pd.DataFrame, prompt_split: dict, heldout: str) -> dict:
     """Splits for the model that never hears the speakers of fold `heldout`."""
     other = "B" if heldout == "A" else "A"
+    meta = usable(meta)
     ps = meta["text_norm"].map(prompt_split)
     held, train_spk = meta["speaker"].isin(_speakers(heldout)), meta["speaker"].isin(_speakers(other))
     return {
@@ -53,6 +60,7 @@ def fold_splits(meta: pd.DataFrame, prompt_split: dict, heldout: str) -> dict:
 
 def random_splits(meta: pd.DataFrame, seed: int = SEED) -> dict:
     """Deliberately leaky 80/10/10 split over rows, ignoring speakers and microphone copies."""
+    meta = usable(meta).reset_index(drop=True)
     idx = np.random.default_rng(seed).permutation(len(meta))
     n_test, n_val = round(0.1 * len(meta)), round(0.1 * len(meta))
     take = lambda ix: meta.iloc[np.sort(ix)].reset_index(drop=True)  # noqa: E731
@@ -62,6 +70,7 @@ def random_splits(meta: pd.DataFrame, seed: int = SEED) -> dict:
 def personal_subsets(meta: pd.DataFrame, prompt_split: dict, speaker: str,
                      minutes=(2, 5, 10), seed: int = SEED) -> dict:
     """Nested sets of one speaker's own training-prompt clips reaching k minutes, or 'capped' if too few."""
+    meta = usable(meta)
     mine = meta[(meta["speaker"] == speaker) & (meta["text_norm"].map(prompt_split) == "train")]
     pool = pick_eval_copies(mine)
     pool = pool.iloc[np.random.default_rng(seed).permutation(len(pool))].reset_index(drop=True)

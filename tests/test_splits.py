@@ -109,3 +109,18 @@ def test_write_and_read_split_round_trip_without_transcripts(tmp_path):
     back = read_split(tmp_path, "holdA", "test_strict")
     assert list(back["row_id"]) == list(s["test_strict"]["row_id"])
     assert "text_norm" not in back.columns and "text" not in back.columns
+
+
+def test_clips_longer_than_30_seconds_are_never_used():
+    meta = make_meta()
+    long_ids = set(meta.loc[meta["speaker"] == "F01", "row_id"].head(4))
+    meta.loc[meta["row_id"].isin(long_ids), "duration"] = 180.0
+    ps = assign_prompt_splits(meta)
+    used = set()
+    for held in ("A", "B"):
+        for df in fold_splits(meta, ps, held).values():
+            used |= set(df["row_id"])
+    for v in personal_subsets(meta, ps, "F01", minutes=(1, 2)).values():
+        if isinstance(v, pd.DataFrame):
+            used |= set(v["row_id"])
+    assert not used & long_ids
