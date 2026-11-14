@@ -54,3 +54,37 @@ def test_read_preds_keeps_empty_and_null_looking_outputs_as_text(tmp_path):
     back = read_preds(tmp_path / "p.csv")
     assert list(back["hyp"]) == ["", "null", "NA"] and list(back["ref"]) == ["yes", "no", "null"]
     assert back["is_dysarthric"].dtype == bool
+
+
+def _fake_model_dir(path):
+    path.mkdir(parents=True)
+    (path / "config.json").write_text("{}")
+    (path / "model.safetensors").write_text("weights")
+    return path
+
+
+def test_save_best_copies_only_the_kept_model_to_the_work_folder(tmp_path):
+    from clearvoice.pipeline import kept_model, save_best
+
+    local = _fake_model_dir(tmp_path / "local" / "holdA" / "best")
+    (tmp_path / "local" / "holdA" / "checkpoints").mkdir()
+    out = save_best(local, tmp_path / "drive", "holdA")
+    assert out == str(tmp_path / "drive" / "models" / "holdA" / "best")
+    assert (tmp_path / "drive" / "models" / "holdA" / "best" / "model.safetensors").exists()
+    assert not (tmp_path / "drive" / "models" / "holdA" / "checkpoints").exists()
+    assert kept_model(tmp_path / "drive", "holdA") == out
+
+
+def test_kept_model_is_none_before_training(tmp_path):
+    from clearvoice.pipeline import kept_model
+
+    assert kept_model(tmp_path, "holdB") is None
+
+
+def test_align_folds_drops_baseline_rows_for_folds_without_a_fine_tuned_model():
+    from clearvoice.pipeline import align_folds
+
+    zs = {"whisper-small": pd.DataFrame({"fold": ["A", "A", "B"], "row_id": [1, 2, 3]})}
+    ft = pd.DataFrame({"fold": ["A"], "row_id": [1]})
+    out = align_folds(zs, ft)
+    assert list(out["whisper-small"]["fold"]) == ["A", "A"]

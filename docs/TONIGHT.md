@@ -5,11 +5,7 @@ Times below are estimates; check the real ones as you go.
 
 ## 1. Setup (about 15 minutes, only you can do these)
 
-1. **GitHub repo.** It must be public so Colab can clone it and judges can read it; the repo holds code, split indices and results only, no audio. Either tell Claude "create the repo" or run:
-
-   ```bash
-   gh repo create clear-voice --public --source . --push
-   ```
+1. **GitHub repo.** It must be public so Colab can clone it and judges can read it; the repo holds code, split indices and results only, no audio. Tell Claude "create the repo": it merges the finished build into `main` first, then publishes it. (Pushing before that merge would leave `main` empty, and the notebooks would fail to install.)
 
    The notebooks expect `https://github.com/armaan-khoja/clear-voice`. If you use another name, change `REPO_URL` in `scripts/build_notebooks.py` and rerun `python scripts/build_notebooks.py`.
 2. **Colab Pro.** Subscribe at colab.research.google.com/signup. Keep an eye on the compute-units counter.
@@ -25,15 +21,19 @@ Open each notebook in Colab: File > Open notebook > GitHub, enter `armaan-khoja/
 
 | Step | Notebook | Setting | Time (estimate) |
 |---|---|---|---|
-| 0 | `03_finetune` | `SMOKE = True` | 5–10 min. A full dress rehearsal on a few clips; fix anything here before the long runs |
+| 0 | `03_finetune` | `SMOKE = True` | 5–10 min. A full dress rehearsal on a few clips; it writes to `MyDrive/clearvoice/smoke` and never uploads, so it can't overwrite real results |
 | 1 | `01_data_and_splits` | | 3 min, GPU not needed |
 | 2 | `02_zero_shot_baselines` | | 30–45 min |
-| 3 | `03_finetune` | `HELDOUT = "A"`, `PUSH_TO_HUB = True` | 60–90 min |
-| 4 | `03_finetune` | `HELDOUT = "B"`, `PUSH_TO_HUB = True` | 45–75 min |
+| 3 | `03_finetune` | `HELDOUT = "A"` (`PUSH_TO_HUB` is already `True`) | 60–90 min |
+| 4 | `03_finetune` | `HELDOUT = "B"` | 45–75 min |
 | 5 | `04_personalise` (Sunday) | | about 30 min |
 | 6 | `05_results_and_failures` (Sunday) | `DEPLOY_SPACE = True` once results look right | 5 min |
 
-- **Keep the Colab tab open overnight.** Colab Pro does not keep running when the tab closes. If a run disconnects, rerun that notebook from the top; it restarts training from the beginning.
+- **Keep the Colab tab open overnight.** Colab Pro does not keep running when the tab closes.
+- **If a run disconnects:** rerun the notebook from the top.
+  - If it dropped during training, training starts again from the beginning.
+  - If training had already finished, the model is on Drive and the notebook skips straight to testing and uploading. Set `RETRAIN = True` only if you want to train again.
+- **Training writes to Colab's own disk,** and only the final model (about 1 GB per fold) is copied to Drive.
 - **SMOKE is a setting at the top of the setup cell.** Set it back to `False` for the real runs.
 
 ## 3. Getting results back into the repo

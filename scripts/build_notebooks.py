@@ -27,6 +27,8 @@ if IN_COLAB:
         print("No HF_TOKEN secret: downloads still work, uploading models will not.")
 else:
     WORK = os.path.abspath("work")
+if SMOKE:
+    WORK = f"{WORK}/smoke"  # quick checks never overwrite real models or results
 sys.path.insert(0, os.getcwd())
 os.makedirs(f"{WORK}/results", exist_ok=True)
 os.makedirs(f"{WORK}/models", exist_ok=True)
@@ -104,8 +106,9 @@ pd.DataFrame(general).to_csv(f"{WORK}/results/librispeech_zeroshot.csv", index=F
 pd.DataFrame(general)'''),
             ("md", "**First look:** dysarthric speakers, unseen sentences. Sentences scored by word error rate, "
                    "single words by character error rate."),
-            ("code", '''from clearvoice.report import headline
-headline({s: pd.read_csv(f"{WORK}/results/preds_zeroshot_{s}.csv") for s in ["whisper-small", "whisper-large-v3"]})'''),
+            ("code", '''from clearvoice.pipeline import read_preds
+from clearvoice.report import headline
+headline({s: read_preds(f"{WORK}/results/preds_zeroshot_{s}.csv") for s in ["whisper-small", "whisper-large-v3"]})'''),
         ],
     ),
     "03_finetune": nb(
@@ -115,7 +118,8 @@ headline({s: pd.read_csv(f"{WORK}/results/preds_zeroshot_{s}.csv") for s in ["wh
         "Keep this browser tab open while it trains.",
         [
             ("code", '''HELDOUT = "A"        # run once with "A", then once with "B"
-PUSH_TO_HUB = False  # True uploads the model to your Hugging Face account for the demo'''),
+PUSH_TO_HUB = True   # uploads the model to your Hugging Face account for the demo (needs the HF_TOKEN secret)
+RETRAIN = False      # False: if this fold's model is already on Drive, skip straight to testing'''),
             ("code", LOAD),
             ("code", '''from clearvoice.data import load_audio
 from clearvoice.pipeline import rows_for
@@ -126,16 +130,25 @@ if SMOKE:
     train, val = train.head(16), val.head(8)
 print(len(train), "training clips from", sorted(train.speaker.unique()))
 print(len(val), "validation clips (validation sentences only)")
-audio = load_audio(parquets, meta, list(train.row_id) + list(val.row_id))'''),
+from clearvoice.pipeline import kept_model
+needs_training = RETRAIN or kept_model(WORK, name) is None
+audio = load_audio(parquets, meta, list(train.row_id) + list(val.row_id)) if needs_training else {}'''),
             ("md", "**Train.** Learning rate 1e-5, batch 16, up to 2,000 steps. Every 250 steps the model is scored on "
                    "validation sentences it never trains on; the best one is kept, and training stops early if it stops improving."),
-            ("code", '''from clearvoice.train import TrainConfig, finetune
-cfg = TrainConfig()
-if SMOKE:
-    cfg = TrainConfig(max_steps=4, eval_steps=2, save_steps=2, batch_size=4, eval_batch_size=4)
-best = finetune(cfg, train, val, audio, f"{WORK}/models/{name}")
-del audio
-print("Kept model:", best)'''),
+            ("code", '''from clearvoice.pipeline import kept_model, save_best
+from clearvoice.train import TrainConfig, finetune
+best = kept_model(WORK, name)
+if best and not RETRAIN:
+    print("Using the model already trained:", best)
+else:
+    cfg = TrainConfig()
+    if SMOKE:
+        cfg = TrainConfig(max_steps=4, eval_steps=2, save_steps=2, batch_size=4, eval_batch_size=4)
+    # Train on Colab's own disk: checkpoints are ~1 GB each and would fill Google Drive (deleted files go to its trash).
+    local = f"/content/models/{name}" if IN_COLAB else f"{WORK}/local_models/{name}"
+    best = save_best(finetune(cfg, train, val, audio, local), WORK, name)
+    print("Kept model saved to:", best)
+del audio'''),
             ("md", "**Test** on the held-out speakers (seen and unseen sentences), on the training speakers' unseen "
                    "sentences, and on everyday English."),
             ("code", '''import pandas as pd
@@ -150,7 +163,7 @@ ls = librispeech_check(model, processor, n=20 if SMOKE else 200, batch_size=32)
 pd.DataFrame([{"system": "Clear Voice", "fold": HELDOUT, "librispeech_wer": ls["wer"], "n": ls["n"]}]).to_csv(
     f"{WORK}/results/librispeech_ft_{name}.csv", index=False)
 leakage(preds)'''),
-            ("code", '''if PUSH_TO_HUB:
+            ("code", '''if PUSH_TO_HUB and not SMOKE:  # never upload a smoke-test model
     from huggingface_hub import whoami
     repo = f"{whoami()['name']}/clear-voice-{name.lower()}"
     model.push_to_hub(repo)
@@ -220,11 +233,13 @@ res'''),
 import pandas as pd
 from IPython.display import Image, display
 from clearvoice import plots
+from clearvoice.pipeline import align_folds, read_preds
 from clearvoice.report import headline, leakage, per_speaker, pick_demo_clips, worst_clips
 R = f"{WORK}/results"
-zs = {s: pd.read_csv(f"{R}/preds_zeroshot_{s}.csv") for s in ["whisper-small", "whisper-large-v3"]}
-ft = pd.concat([pd.read_csv(f"{R}/preds_ft_hold{f}.csv") for f in ["A", "B"]
+zs = {s: read_preds(f"{R}/preds_zeroshot_{s}.csv") for s in ["whisper-small", "whisper-large-v3"]}
+ft = pd.concat([read_preds(f"{R}/preds_ft_hold{f}.csv") for f in ["A", "B"]
                 if os.path.exists(f"{R}/preds_ft_hold{f}.csv")], ignore_index=True)
+zs = align_folds(zs, ft)  # same speakers for every system
 preds = {**zs, "Clear Voice": ft}
 print("Clear Voice folds found:", sorted(ft.fold.unique()))'''),
             ("md", "**Headline:** dysarthric speakers the model never heard, saying sentences it never heard (95% intervals from resampling speakers)."),

@@ -77,3 +77,28 @@ def librispeech_check(model, processor, n: int = 200, batch_size: int = 16, parq
     refs = table.column("text").to_pylist()
     hyps = transcribe(model, processor, audios, batch_size=batch_size)
     return {**score(refs, hyps), "refs": refs, "hyps": hyps}
+
+
+def kept_model(work_dir, name: str) -> str | None:
+    """The trained model saved for `name` (e.g. 'holdA') in the work folder, or None if not trained yet."""
+    best = Path(work_dir) / "models" / name / "best"
+    return str(best) if (best / "config.json").exists() else None
+
+
+def save_best(best_dir, work_dir, name: str) -> str:
+    """Copy only the kept model (not checkpoints) into the work folder, e.g. on Google Drive."""
+    import shutil
+
+    dest = Path(work_dir) / "models" / name / "best"
+    if dest.exists():
+        shutil.rmtree(dest)
+    shutil.copytree(best_dir, dest)
+    return str(dest)
+
+
+def align_folds(zero_shot: dict, ft: pd.DataFrame) -> dict:
+    """Keep baseline rows only for folds that have a fine-tuned model, so every system is scored on the same speakers."""
+    folds = set(ft["fold"].unique())
+    if folds != {"A", "B"}:
+        print(f"Only fold(s) {sorted(folds)} have a fine-tuned model: comparing on those speakers only.")
+    return {s: df[df["fold"].isin(folds)].reset_index(drop=True) for s, df in zero_shot.items()}

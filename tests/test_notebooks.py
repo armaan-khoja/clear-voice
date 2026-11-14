@@ -27,3 +27,22 @@ def test_notebook_parses_and_every_package_name_it_uses_exists(name):
         mod = importlib.import_module(f"clearvoice.{module}")
         for n in [n.strip() for n in names.split(",")]:
             assert hasattr(mod, n), f"{name}: clearvoice.{module}.{n}"
+
+
+def _setup_code():
+    nb = nbformat.read(NB_DIR / "01_data_and_splits.ipynb", as_version=4)
+    return [c.source for c in nb.cells if c.cell_type == "code"][0]
+
+
+def test_smoke_runs_write_to_their_own_folder(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    ns = {}
+    exec(_setup_code().replace("SMOKE = False", "SMOKE = True"), ns)
+    assert ns["WORK"].endswith("/smoke")
+
+
+def test_real_runs_write_to_the_main_folder(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    ns = {}
+    exec(_setup_code(), ns)
+    assert not ns["WORK"].endswith("/smoke")

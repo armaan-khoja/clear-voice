@@ -60,3 +60,21 @@ def test_show_clip_shows_an_empty_transcript_as_empty_not_nan(monkeypatch, tmp_p
     monkeypatch.setattr(demo_app, "clip_audio", lambda row: (16000, np.zeros(10, dtype=np.float32)))
     _, _, small, _, _ = demo_app.show_clip(demo_app.clip_label(demo_app.load_clips().iloc[0]))
     assert small == ""
+
+
+def test_space_config_pins_a_python_new_enough_for_transformers():
+    from pathlib import Path
+    front = Path(demo_app.__file__).with_name("README.md").read_text().split("---")[1]
+    version = dict(l.split(":", 1) for l in front.strip().splitlines())["python_version"].strip().strip('"')
+    assert tuple(int(x) for x in version.split(".")) >= (3, 11)
+
+
+def test_warm_up_loads_both_models_and_the_demo_clip_files(monkeypatch, tmp_path):
+    monkeypatch.setattr(demo_app, "CLIPS_CSV", _clips(tmp_path))
+    monkeypatch.setenv("CV_MODEL_A", "someone/clear-voice-holda")
+    loaded, files = [], []
+    monkeypatch.setattr(demo_app, "_model", lambda name: loaded.append(name))
+    monkeypatch.setattr(demo_app, "_parquet", lambda i: files.append(i))
+    demo_app.warm_up()
+    assert loaded == ["openai/whisper-small", "someone/clear-voice-holda"]
+    assert sorted(files) == [0, 1]

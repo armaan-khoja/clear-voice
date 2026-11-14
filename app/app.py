@@ -101,6 +101,18 @@ def show_clip(label: str):
     return (clip_audio(row), row["ref"], *[str(row.get(s, "")) for s in SYSTEMS])
 
 
+def warm_up() -> None:
+    """Load both models and the demo clips' dataset files before anyone clicks, so the first click is fast."""
+    _model(STOCK)
+    cv_id = os.environ.get("CV_MODEL_A")
+    if cv_id:
+        _model(cv_id)
+    clips = load_clips()
+    if not clips.empty:
+        for i in sorted(set(int(x) for x in clips["file_idx"])):
+            _parquet(i)
+
+
 def build_ui() -> gr.Blocks:
     clips = load_clips()
     with gr.Blocks(title="Clear Voice") as demo:
@@ -137,4 +149,7 @@ def build_ui() -> gr.Blocks:
 
 
 if __name__ == "__main__":
+    import threading
+
+    threading.Thread(target=warm_up, daemon=True).start()
     build_ui().launch()
