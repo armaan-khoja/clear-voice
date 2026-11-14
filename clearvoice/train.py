@@ -3,6 +3,7 @@
 Follows the recipe in Hugging Face's "Fine-Tune Whisper" blog: log-mel features are computed per batch,
 labels are the transcript's tokens, and validation WER chooses the checkpoint to keep.
 """
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -140,4 +141,5 @@ def finetune(cfg: TrainConfig, train_rows: pd.DataFrame, val_rows: pd.DataFrame 
     final = out / "best"
     trainer.save_model(str(final))
     processor.save_pretrained(str(final))
+    shutil.rmtree(out / "checkpoints", ignore_errors=True)  # each is ~1 GB on Google Drive
     return str(final)

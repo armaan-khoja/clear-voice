@@ -72,3 +72,13 @@ def test_personalisation_plot_writes_a_non_empty_png(tmp_path):
     out = tmp_path / "p.png"
     plots.personalisation(df, out)
     assert out.stat().st_size > 1000
+
+
+def test_headline_adds_a_median_that_one_runaway_clip_cannot_dominate():
+    df = fake_preds("whisper-small", wrong_every=1000)  # every clip right ...
+    strict_words = df[(df.part == "test_strict") & (df.prompt_type == "word") & df.is_dysarthric]
+    df.loc[strict_words.index[0], "hyp"] = "huh" * 80  # ... except one runaway output
+    h = headline({"whisper-small": df}).iloc[0]
+    assert h["word_cer"] > 1           # the corpus rate is dominated by the runaway clip
+    assert h["word_cer_median"] == 0   # the typical clip is still perfect
+    assert "sentence_wer_median" in h.index

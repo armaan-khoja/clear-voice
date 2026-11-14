@@ -1,13 +1,14 @@
-# Runtime dependencies (Colab and local). torch is preinstalled on Colab.
+# Runtime dependencies (Colab and local). torch, numpy, pandas and scipy come preinstalled on Colab.
+# The API-sensitive libraries are pinned to the versions this code was tested with.
 torch
-transformers
-accelerate
+transformers==5.23.0
+accelerate==1.15.0
+jiwer==4.0.0
 huggingface_hub
 pyarrow
 pandas
 numpy
 scipy
 soundfile
-jiwer
 matplotlib
 tabulate

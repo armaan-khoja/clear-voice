@@ -28,6 +28,15 @@ def _metric_with_ci(df: pd.DataFrame, metric: str) -> tuple:
     return point, lo, hi
 
 
+def _median_clip(df: pd.DataFrame, metric: str) -> float:
+    """Median per-clip error: robust to the rare clip where the model invents a long string of words."""
+    if df.empty:
+        return np.nan
+    vals = [score([r], [h])[metric] for r, h in zip(df["ref"], df["hyp"])]
+    vals = [v for v in vals if not np.isnan(v)]
+    return float(np.median(vals)) if vals else np.nan
+
+
 def headline(preds: dict) -> pd.DataFrame:
     """Strict split, dysarthric speakers: sentence WER and single-word CER with 95% speaker-bootstrap intervals."""
     rows = []
@@ -36,7 +45,9 @@ def headline(preds: dict) -> pd.DataFrame:
         s, s_lo, s_hi = _metric_with_ci(d[d["prompt_type"] == "sentence"], "wer")
         w, w_lo, w_hi = _metric_with_ci(d[d["prompt_type"] == "word"], "cer")
         rows.append({"system": system, "sentence_wer": s, "sentence_wer_lo": s_lo, "sentence_wer_hi": s_hi,
+                     "sentence_wer_median": _median_clip(d[d["prompt_type"] == "sentence"], "wer"),
                      "word_cer": w, "word_cer_lo": w_lo, "word_cer_hi": w_hi,
+                     "word_cer_median": _median_clip(d[d["prompt_type"] == "word"], "cer"),
                      "n_clips": len(d), "n_speakers": d["speaker"].nunique()})
     return pd.DataFrame(rows)
 
