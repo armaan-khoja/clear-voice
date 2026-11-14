@@ -1,0 +1,12 @@
+# Runtime dependencies (Colab and local). torch is preinstalled on Colab.
+torch
+transformers
+accelerate
+huggingface_hub
+pyarrow
+pandas
+numpy
+scipy
+soundfile
+jiwer
+matplotlib

@@ -1,0 +1,15 @@
+[project]
+name = "clearvoice"
+version = "0.1.0"
+description = "Whisper fine-tuned so people with dysarthria are understood, tested on unseen speakers and sentences."
+requires-python = ">=3.10"
+
+[tool.setuptools]
+packages = ["clearvoice"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["slow: downloads a small Whisper model or trains; run with -m slow"]
+addopts = "-m 'not slow'"
+filterwarnings = ["ignore::DeprecationWarning", "ignore::FutureWarning"]
