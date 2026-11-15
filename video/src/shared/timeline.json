@@ -9,9 +9,10 @@
     "problem": 390,
     "demo": 360,
     "how": 400,
-    "results": 360,
+    "results": 600,
     "honest": 330,
     "personal": 300,
     "close": 270
-  }
+  },
+  "afterClip": 240
 }

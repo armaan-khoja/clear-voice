@@ -9,6 +9,10 @@ export const OVERLAP = T.overlap; // frames each scene overlaps the one before i
 export const HOOK_PLAY = T.hookPlay; // frame within the hook where the opening recording starts
 export const DEMO_PLAY = T.demoPlay; // frame within each demo scene where its recording starts
 const F = T.frames;
+const AFTER_CLIP = T.afterClip; // frames a demo scene stays on after its recording ends
+
+// A demo scene lasts its usual length, or longer when the recording is long (slow, severe speech).
+export const demoFrames = (clip: Clip): number => Math.max(F.demo, DEMO_PLAY + Math.round(clip.duration * FPS) + AFTER_CLIP);
 
 export type SceneKind = 'title' | 'hook' | 'problem' | 'demo' | 'how' | 'results' | 'honest' | 'personal' | 'close';
 
@@ -31,7 +35,7 @@ export const parts = (): Part[] => {
 		{key: 'title', kind: 'title', frames: F.title},
 		{key: 'hook', kind: 'hook', frames: F.hook, clip: data.opening, playAt: HOOK_PLAY},
 		{key: 'problem', kind: 'problem', frames: F.problem},
-		...demos.map((clip, i) => ({key: `demo${i}`, kind: 'demo' as const, frames: F.demo, clip, index: i, total: demos.length, playAt: DEMO_PLAY})),
+		...demos.map((clip, i) => ({key: `demo${i}`, kind: 'demo' as const, frames: demoFrames(clip), clip, index: i, total: demos.length, playAt: DEMO_PLAY})),
 		{key: 'how', kind: 'how', frames: F.how},
 		{key: 'results', kind: 'results', frames: F.results},
 		{key: 'honest', kind: 'honest', frames: F.honest},

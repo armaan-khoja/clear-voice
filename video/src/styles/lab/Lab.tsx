@@ -1,5 +1,5 @@
 import {Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
-import {data} from '../../data';
+import {BIGGER, BIGGER_WORDS, data, severityWords, STOCK, wordCer} from '../../data';
 import {easeOut, pct} from '../../shared/audio';
 import type {SceneProps} from '../../shared/Film';
 import {Film, Watermark} from '../../shared/Film';
@@ -70,7 +70,7 @@ const Hook: React.FC<SceneProps> = ({part}) => {
 	const clip = part.clip!;
 	return (
 		<Sheet>
-			<Analysis clip={clip} playAt={part.playAt!} heading={`What did they say? Speaker ${clip.speaker}, ${clip.severity} dysarthria`} tiersAt={clipEnd(part) + 12} />
+			<Analysis clip={clip} playAt={part.playAt!} heading={`What did they say? Speaker ${clip.speaker}, ${severityWords(clip.severity)} dysarthria`} tiersAt={clipEnd(part) + 12} />
 			<Caption n={1} at={clipEnd(part) + 90}>
 				A recording the models never heard in training. Misheard words are shaded; numbers on the right are word error rates for this clip.
 			</Caption>
@@ -80,7 +80,7 @@ const Hook: React.FC<SceneProps> = ({part}) => {
 
 const Problem: React.FC<SceneProps> = () => {
 	const f = useCurrentFrame();
-	const dys = data.headline.find((b) => b.name === 'whisper-small')!.value;
+	const dys = data.headline.find((b) => b.name === STOCK)!.value;
 	const typ = data.stockTypical;
 	const rows = [...(typ !== undefined ? [{label: 'Typical voices', v: typ}] : []), {label: 'Voices with dysarthria', v: dys}];
 	const max = Math.max(...rows.map((r) => r.v)) * 1.15;
@@ -94,7 +94,7 @@ const Problem: React.FC<SceneProps> = () => {
 				Dysarthria makes speech slow, slurred or quiet. It can come with cerebral palsy, ALS, a stroke or Parkinson’s disease. Dictation and live captions often turn it into the wrong words.
 			</Rise>
 			<div style={{position: 'absolute', top: 300, left: 960, width: W + 200}}>
-				<div style={{fontSize: 26, fontWeight: 700, marginBottom: 30}}>Stock whisper-small, words wrong</div>
+				<div style={{fontSize: 26, fontWeight: 700, marginBottom: 30}}>Stock {STOCK}, words wrong</div>
 				<div style={{position: 'relative', height: rows.length * 120}}>
 					<ErrAxis x={260} y={0} w={W - 260} h={rows.length * 120} max={max} at={30} />
 					{rows.map((r, i) => {
@@ -110,7 +110,7 @@ const Problem: React.FC<SceneProps> = () => {
 				</div>
 			</div>
 			<Caption n={2} at={120}>
-				Stock whisper-small on the TORGO database, sentences only, speakers it was not trained on. Word error rate: the share of words it gets wrong.
+				Stock {STOCK} on the TORGO database, sentences only, speakers it was not trained on. Word error rate: the share of words it gets wrong.
 			</Caption>
 		</Sheet>
 	);
@@ -121,7 +121,7 @@ const Demo: React.FC<SceneProps> = ({part}) => {
 	const n = 3 + (part.index ?? 0);
 	return (
 		<Sheet>
-			<Analysis clip={clip} playAt={part.playAt!} heading={`Speaker ${clip.speaker}, ${clip.severity} dysarthria, chosen at random`} tiersAt={clipEnd(part) + 10} />
+			<Analysis clip={clip} playAt={part.playAt!} heading={`Speaker ${clip.speaker}, ${severityWords(clip.severity)} dysarthria, chosen at random`} tiersAt={clipEnd(part) + 10} />
 			<Caption n={n} at={clipEnd(part) + 70}>
 				Random clip from the strict test set: a speaker and a sentence that never appeared in training.
 			</Caption>
@@ -220,13 +220,13 @@ const Results: React.FC<SceneProps> = ({part}) => {
 	const bars = data.headline;
 	const max = Math.ceil((Math.max(...bars.map((b) => b.hi ?? b.value)) * 1.1) / 0.1) * 0.1;
 	const ours = bars.find((b) => b.name === 'Clear Voice')!.value;
-	const stock = bars.find((b) => b.name === 'whisper-small')!.value;
+	const stock = bars.find((b) => b.name === STOCK)!.value;
 	const large = bars.find((b) => b.name === 'whisper-large-v3')?.value ?? Infinity;
 	const heading =
 		ours < Math.min(stock, large)
 			? 'Fewer words wrong than either stock model'
 			: ours < stock
-				? 'Better than its base model; the 6× larger model still leads'
+				? `Better than its base model; the ${BIGGER} larger model still leads`
 				: 'Not yet better than stock Whisper';
 	const x = 560;
 	const w = 1100;
@@ -258,8 +258,14 @@ const Results: React.FC<SceneProps> = ({part}) => {
 			<Rise at={20} style={{position: 'absolute', top: 280 + rowH * bars.length + 50, left: x, width: w, textAlign: 'center', fontSize: 24, color: L.muted}}>
 				Word error rate on sentences
 			</Rise>
+			{wordCer('Clear Voice') !== undefined && wordCer(STOCK) !== undefined ? (
+				<Rise at={70} style={{position: 'absolute', top: 280 + rowH * bars.length + 100, left: 100, right: 100, fontSize: 32}}>
+					Single words: Clear Voice gets <b style={{color: L.clear}}>{pct(wordCer('Clear Voice')!)}</b> of letters wrong; stock {STOCK} {pct(wordCer(STOCK)!)}
+					{wordCer('whisper-large-v3') !== undefined ? `, whisper-large-v3 ${pct(wordCer('whisper-large-v3')!)}` : ''}.
+				</Rise>
+			) : null}
 			<Caption n={n} at={100}>
-				Dots are word error rates; lines are 95% intervals from resampling speakers. whisper-large-v3 is a stock model about six times the size of whisper-small.
+				Dots are word error rates; lines are 95% intervals from resampling speakers. whisper-large-v3 is a stock model about {BIGGER_WORDS} the size of {STOCK}.
 			</Caption>
 		</Sheet>
 	);

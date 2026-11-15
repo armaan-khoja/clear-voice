@@ -1,7 +1,7 @@
 import {loadFont} from '@remotion/google-fonts/SchibstedGrotesk';
 import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
 import type {Clip, Token} from '../../data';
-import {data} from '../../data';
+import {BIGGER, data, severityWords, STOCK, wordCer} from '../../data';
 import {easeOut, pct, useWave} from '../../shared/audio';
 import type {SceneProps} from '../../shared/Film';
 import {Film, Watermark} from '../../shared/Film';
@@ -13,8 +13,8 @@ const P = {ground: '#f3f3f1', ink: '#0e0e0e', mid: '#6f6f6b', rule: '#cfcfca', f
 const M = 140; // page margin
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const SYSTEMS = [
-	{key: 'whisper-small', label: 'Stock Whisper', color: P.ink},
-	{key: 'whisper-large-v3', label: 'Whisper, 6× larger', color: P.ink},
+	{key: STOCK, label: 'Stock Whisper', color: P.ink},
+	{key: 'whisper-large-v3', label: `Whisper, ${BIGGER} larger`, color: P.ink},
 	{key: 'Clear Voice', label: 'Clear Voice', color: P.accent},
 ];
 
@@ -134,13 +134,13 @@ const Title: React.FC<SceneProps> = () => (
 const Hook: React.FC<SceneProps> = ({part}) => {
 	const clip = part.clip!;
 	const end = clipEnd(part);
-	const stock = clip.systems['whisper-small'];
+	const stock = clip.systems[STOCK];
 	const n = clip.ref.split(' ').length;
 	const right = stock ? stock.tokens.filter((t) => t.tag === 'ok').length : 0;
 	return (
 		<Frame>
 			<Claim at={4} size={64}>
-				A speaker with {clip.severity} dysarthria. The model has never heard this speaker or this sentence.
+				A speaker with {severityWords(clip.severity)} dysarthria. The model has never heard this speaker or this sentence.
 			</Claim>
 			<Proof at={20} style={{top: 340, left: M}}>
 				<Wave clip={clip} playAt={part.playAt!} width={1640} />
@@ -148,13 +148,13 @@ const Hook: React.FC<SceneProps> = ({part}) => {
 			<Claim at={end + 8} size={44} top={470}>
 				Stock Whisper got {right} of {n} words right.
 			</Claim>
-			<Transcripts clip={clip} at={end + 20} top={560} systems={['whisper-small', 'Clear Voice']} />
+			<Transcripts clip={clip} at={end + 20} top={560} systems={[STOCK, 'Clear Voice']} />
 		</Frame>
 	);
 };
 
 const Problem: React.FC<SceneProps> = () => {
-	const dys = data.headline.find((b) => b.name === 'whisper-small')!.value;
+	const dys = data.headline.find((b) => b.name === STOCK)!.value;
 	const typ = data.stockTypical;
 	return (
 		<Frame>
@@ -180,7 +180,7 @@ const Demo: React.FC<SceneProps> = ({part}) => {
 	return (
 		<Frame>
 			<Claim size={64}>
-				{clip.severity[0].toUpperCase() + clip.severity.slice(1)} dysarthria, picked at random.
+				{severityWords(clip.severity)[0].toUpperCase() + severityWords(clip.severity).slice(1)} dysarthria, picked at random.
 			</Claim>
 			<Proof at={12} style={{top: 250, left: M}}>
 				<Wave clip={clip} playAt={part.playAt!} width={1640} />
@@ -240,7 +240,7 @@ const How: React.FC<SceneProps> = () => {
 const Results: React.FC<SceneProps> = () => {
 	const bars = data.headline;
 	const ours = bars.find((b) => b.name === 'Clear Voice')!.value;
-	const stock = bars.find((b) => b.name === 'whisper-small')!.value;
+	const stock = bars.find((b) => b.name === STOCK)!.value;
 	const large = bars.find((b) => b.name === 'whisper-large-v3')?.value ?? Infinity;
 	const claim =
 		ours < Math.min(stock, large)
@@ -259,6 +259,11 @@ const Results: React.FC<SceneProps> = () => {
 			<Proof at={90} style={{bottom: 110, left: M, fontSize: 22, color: P.mid}}>
 				Share of words wrong on sentences, new speakers with dysarthria saying new sentences. 95% intervals are in the write-up.
 			</Proof>
+			{wordCer('Clear Voice') !== undefined && wordCer(STOCK) !== undefined ? (
+				<Proof at={70} style={{bottom: 170, left: M, fontSize: 34, fontWeight: 500}}>
+					Single words: {pct(wordCer('Clear Voice')!)} of letters wrong, against {pct(wordCer(STOCK)!)} for stock Whisper.
+				</Proof>
+			) : null}
 		</Frame>
 	);
 };

@@ -2,6 +2,7 @@ import {loadFont as loadNext} from '@remotion/google-fonts/AtkinsonHyperlegibleN
 import {loadFont as loadMono} from '@remotion/google-fonts/AtkinsonHyperlegibleMono';
 import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import type {Clip, Token} from '../../data';
+import {STOCK} from '../../data';
 import {easeOut, pct, useWave} from '../../shared/audio';
 import {OVERLAP} from '../../shared/timeline';
 
@@ -23,7 +24,7 @@ export const L = {
 };
 
 export const SYSTEMS: {key: string; label: string; color: string}[] = [
-	{key: 'whisper-small', label: 'whisper-small', color: L.small},
+	{key: STOCK, label: STOCK, color: L.small},
 	{key: 'whisper-large-v3', label: 'whisper-large-v3', color: L.large},
 	{key: 'Clear Voice', label: 'Clear Voice', color: L.clear},
 ];

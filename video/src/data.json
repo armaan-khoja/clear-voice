@@ -1,65 +1,71 @@
 {
-  "placeholder": true,
+  "placeholder": false,
+  "stockName": "whisper-medium",
+  "largeRatio": 2,
   "team": "Team names here",
   "repoUrl": "github.com/armaan-khoja/clear-voice",
   "demoUrl": "",
   "nRecordings": 16552,
   "nSpeakers": 15,
   "nDysarthric": 8,
-  "trainMinutes": 30,
+  "trainMinutes": 72,
   "headline": [
     {
-      "name": "whisper-small",
-      "value": 0.5156,
-      "lo": 0.2159,
-      "hi": 1.0465
+      "name": "whisper-medium",
+      "value": 0.3378,
+      "lo": 0.1401,
+      "hi": 0.622
     },
     {
       "name": "whisper-large-v3",
-      "value": 0.5156,
-      "lo": 0.2159,
-      "hi": 1.0465
+      "value": 0.221,
+      "lo": 0.108,
+      "hi": 0.365
     },
     {
       "name": "Clear Voice",
-      "value": 0.5156,
-      "lo": 0.2159,
-      "hi": 1.0465
+      "value": 0.292,
+      "lo": 0.136,
+      "hi": 0.489
     }
   ],
   "headlineWords": [
     {
-      "name": "whisper-small",
-      "value": 3.6837
+      "name": "whisper-medium",
+      "value": 0.9578
     },
     {
       "name": "whisper-large-v3",
-      "value": 3.6837
+      "value": 0.574
     },
     {
       "name": "Clear Voice",
-      "value": 3.6837
+      "value": 0.393
     }
   ],
   "leakage": [
     {
       "name": "New speaker, seen sentence",
-      "value": 0.8293
+      "value": 0.155
     },
     {
       "name": "Seen speaker, new sentence",
-      "value": 0.5156
+      "value": 0.189
     },
     {
       "name": "New speaker, new sentence",
-      "value": 0.5156
+      "value": 0.292
     }
   ],
-  "stockTypical": 0.0,
+  "stockTypical": 0.0422,
   "librispeech": [
     {
-      "name": "whisper-small",
-      "value": 0.05
+      "name": "whisper-medium",
+      "value": 0.0238
+    },
+    {
+      "name": "Clear Voice",
+      "value": 0.03
     }
   ],
   "personalisation": [
@@ -69,129 +75,79 @@
       "points": [
         {
           "minutes": 0,
-          "wer": 0.9
+          "wer": 0.5842
         },
         {
           "minutes": 2,
-          "wer": 0.8
+          "wer": 0.5632
         },
         {
           "minutes": 5,
-          "wer": 0.7
+          "wer": 0.5842
         },
         {
           "minutes": 10,
-          "wer": 0.6
+          "wer": 0.5158
+        }
+      ]
+    },
+    {
+      "speaker": "F03",
+      "severity": "moderate",
+      "points": [
+        {
+          "minutes": 0,
+          "wer": 0.3189
+        },
+        {
+          "minutes": 2,
+          "wer": 0.3256
+        },
+        {
+          "minutes": 5,
+          "wer": 0.3156
+        },
+        {
+          "minutes": 10,
+          "wer": 0.3189
         }
       ]
     }
   ],
   "opening": {
-    "rowId": 15620,
-    "file": "clips/15620.wav",
-    "spec": "spec/15620.png",
-    "speaker": "F03",
-    "severity": "moderate",
-    "duration": 2.21,
-    "ref": "it was a good win for us",
+    "rowId": 10991,
+    "file": "clips/10991.wav",
+    "spec": "spec/10991.png",
+    "speaker": "M05",
+    "severity": "moderate-severe",
+    "duration": 1.8,
+    "ref": "dread",
     "systems": {
-      "whisper-small": {
-        "text": "it was a good win for us",
+      "whisper-medium": {
+        "text": "dead",
         "tokens": [
           {
-            "w": "it",
-            "tag": "ok"
-          },
-          {
-            "w": "was",
-            "tag": "ok"
-          },
-          {
-            "w": "a",
-            "tag": "ok"
-          },
-          {
-            "w": "good",
-            "tag": "ok"
-          },
-          {
-            "w": "win",
-            "tag": "ok"
-          },
-          {
-            "w": "for",
-            "tag": "ok"
-          },
-          {
-            "w": "us",
-            "tag": "ok"
+            "w": "dead",
+            "tag": "sub"
           }
         ],
-        "wer": 0.0
+        "wer": 1.0
       },
       "whisper-large-v3": {
-        "text": "it was a good win for us",
+        "text": "dead",
         "tokens": [
           {
-            "w": "it",
-            "tag": "ok"
-          },
-          {
-            "w": "was",
-            "tag": "ok"
-          },
-          {
-            "w": "a",
-            "tag": "ok"
-          },
-          {
-            "w": "good",
-            "tag": "ok"
-          },
-          {
-            "w": "win",
-            "tag": "ok"
-          },
-          {
-            "w": "for",
-            "tag": "ok"
-          },
-          {
-            "w": "us",
-            "tag": "ok"
+            "w": "dead",
+            "tag": "sub"
           }
         ],
-        "wer": 0.0
+        "wer": 1.0
       },
       "Clear Voice": {
-        "text": "it was a good win for us",
+        "text": "dread",
         "tokens": [
           {
-            "w": "it",
-            "tag": "ok"
-          },
-          {
-            "w": "was",
-            "tag": "ok"
-          },
-          {
-            "w": "a",
-            "tag": "ok"
-          },
-          {
-            "w": "good",
-            "tag": "ok"
-          },
-          {
-            "w": "win",
-            "tag": "ok"
-          },
-          {
-            "w": "for",
-            "tag": "ok"
-          },
-          {
-            "w": "us",
+            "w": "dread",
             "tag": "ok"
           }
         ],
@@ -201,115 +157,289 @@
   },
   "demo": [
     {
-      "rowId": 15619,
-      "file": "clips/15619.wav",
-      "spec": "spec/15619.png",
-      "speaker": "F03",
-      "severity": "moderate",
-      "duration": 4.26,
-      "ref": "the misguided souls have lost their way",
+      "rowId": 14743,
+      "file": "clips/14743.wav",
+      "spec": "spec/14743.png",
+      "speaker": "M03",
+      "severity": "mild",
+      "duration": 3.32,
+      "ref": "their house is gray and white",
       "systems": {
-        "whisper-small": {
-          "text": "the misguided souls have lost their way",
+        "whisper-medium": {
+          "text": "their house is gray and white",
           "tokens": [
-            {
-              "w": "the",
-              "tag": "ok"
-            },
-            {
-              "w": "misguided",
-              "tag": "ok"
-            },
-            {
-              "w": "souls",
-              "tag": "ok"
-            },
-            {
-              "w": "have",
-              "tag": "ok"
-            },
-            {
-              "w": "lost",
-              "tag": "ok"
-            },
             {
               "w": "their",
               "tag": "ok"
             },
             {
-              "w": "way",
+              "w": "house",
+              "tag": "ok"
+            },
+            {
+              "w": "is",
+              "tag": "ok"
+            },
+            {
+              "w": "gray",
+              "tag": "ok"
+            },
+            {
+              "w": "and",
+              "tag": "ok"
+            },
+            {
+              "w": "white",
               "tag": "ok"
             }
           ],
           "wer": 0.0
         },
         "whisper-large-v3": {
-          "text": "the misguided souls have lost their way",
+          "text": "their house is gray and white",
           "tokens": [
-            {
-              "w": "the",
-              "tag": "ok"
-            },
-            {
-              "w": "misguided",
-              "tag": "ok"
-            },
-            {
-              "w": "souls",
-              "tag": "ok"
-            },
-            {
-              "w": "have",
-              "tag": "ok"
-            },
-            {
-              "w": "lost",
-              "tag": "ok"
-            },
             {
               "w": "their",
               "tag": "ok"
             },
             {
-              "w": "way",
+              "w": "house",
+              "tag": "ok"
+            },
+            {
+              "w": "is",
+              "tag": "ok"
+            },
+            {
+              "w": "gray",
+              "tag": "ok"
+            },
+            {
+              "w": "and",
+              "tag": "ok"
+            },
+            {
+              "w": "white",
               "tag": "ok"
             }
           ],
           "wer": 0.0
         },
         "Clear Voice": {
-          "text": "the misguided souls have lost their way",
+          "text": "their house is gray and white",
+          "tokens": [
+            {
+              "w": "their",
+              "tag": "ok"
+            },
+            {
+              "w": "house",
+              "tag": "ok"
+            },
+            {
+              "w": "is",
+              "tag": "ok"
+            },
+            {
+              "w": "gray",
+              "tag": "ok"
+            },
+            {
+              "w": "and",
+              "tag": "ok"
+            },
+            {
+              "w": "white",
+              "tag": "ok"
+            }
+          ],
+          "wer": 0.0
+        }
+      }
+    },
+    {
+      "rowId": 15985,
+      "file": "clips/15985.wav",
+      "spec": "spec/15985.png",
+      "speaker": "F03",
+      "severity": "moderate",
+      "duration": 2.8,
+      "ref": "the prospects of cupping",
+      "systems": {
+        "whisper-medium": {
+          "text": "the prospect of carpet",
           "tokens": [
             {
               "w": "the",
               "tag": "ok"
             },
             {
-              "w": "misguided",
+              "w": "prospect",
+              "tag": "sub"
+            },
+            {
+              "w": "of",
               "tag": "ok"
             },
             {
-              "w": "souls",
+              "w": "carpet",
+              "tag": "sub"
+            }
+          ],
+          "wer": 0.5
+        },
+        "whisper-large-v3": {
+          "text": "the prospect of cupid",
+          "tokens": [
+            {
+              "w": "the",
               "tag": "ok"
             },
             {
-              "w": "have",
+              "w": "prospect",
+              "tag": "sub"
+            },
+            {
+              "w": "of",
               "tag": "ok"
             },
             {
-              "w": "lost",
+              "w": "cupid",
+              "tag": "sub"
+            }
+          ],
+          "wer": 0.5
+        },
+        "Clear Voice": {
+          "text": "the prospect of capital",
+          "tokens": [
+            {
+              "w": "the",
               "tag": "ok"
             },
             {
-              "w": "their",
+              "w": "prospect",
+              "tag": "sub"
+            },
+            {
+              "w": "of",
               "tag": "ok"
             },
             {
-              "w": "way",
+              "w": "capital",
+              "tag": "sub"
+            }
+          ],
+          "wer": 0.5
+        }
+      }
+    },
+    {
+      "rowId": 12740,
+      "file": "clips/12740.wav",
+      "spec": "spec/12740.png",
+      "speaker": "M04",
+      "severity": "severe",
+      "duration": 7.29,
+      "ref": "i feel i can play this weekend",
+      "systems": {
+        "whisper-medium": {
+          "text": "i feel i can play this weekend",
+          "tokens": [
+            {
+              "w": "i",
+              "tag": "ok"
+            },
+            {
+              "w": "feel",
+              "tag": "ok"
+            },
+            {
+              "w": "i",
+              "tag": "ok"
+            },
+            {
+              "w": "can",
+              "tag": "ok"
+            },
+            {
+              "w": "play",
+              "tag": "ok"
+            },
+            {
+              "w": "this",
+              "tag": "ok"
+            },
+            {
+              "w": "weekend",
               "tag": "ok"
             }
           ],
           "wer": 0.0
+        },
+        "whisper-large-v3": {
+          "text": "i feel i can play this weekend",
+          "tokens": [
+            {
+              "w": "i",
+              "tag": "ok"
+            },
+            {
+              "w": "feel",
+              "tag": "ok"
+            },
+            {
+              "w": "i",
+              "tag": "ok"
+            },
+            {
+              "w": "can",
+              "tag": "ok"
+            },
+            {
+              "w": "play",
+              "tag": "ok"
+            },
+            {
+              "w": "this",
+              "tag": "ok"
+            },
+            {
+              "w": "weekend",
+              "tag": "ok"
+            }
+          ],
+          "wer": 0.0
+        },
+        "Clear Voice": {
+          "text": "i feel high spin this weekend",
+          "tokens": [
+            {
+              "w": "i",
+              "tag": "ok"
+            },
+            {
+              "w": "feel",
+              "tag": "ok"
+            },
+            {
+              "w": "high",
+              "tag": "sub"
+            },
+            {
+              "w": "spin",
+              "tag": "sub"
+            },
+            {
+              "w": "this",
+              "tag": "ok"
+            },
+            {
+              "w": "weekend",
+              "tag": "ok"
+            }
+          ],
+          "wer": 0.4286
         }
       }
     }

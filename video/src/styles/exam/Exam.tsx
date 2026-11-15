@@ -1,6 +1,6 @@
 import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {Clip} from '../../data';
-import {data} from '../../data';
+import {BIGGER, data, STOCK, wordCer} from '../../data';
 import {easeOut, pct} from '../../shared/audio';
 import type {SceneProps} from '../../shared/Film';
 import {Film, Watermark} from '../../shared/Film';
@@ -8,7 +8,7 @@ import {clipEnd} from '../../shared/timeline';
 import {Answer, Box, CANDIDATES, COL, E, Fade, HAND, LEFT, Page, PRINT, Question, Tick, TYPE, WaveFigure} from './parts';
 
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
-const SEVERITY: Record<string, string> = {mild: 'mild', moderate: 'moderate', severe: 'severe'};
+const SEVERITY: Record<string, string> = {mild: 'mild', moderate: 'moderate', severe: 'severe', 'moderate-severe': 'moderate to severe'};
 
 // When each candidate starts writing: one after another, each after the examiner has marked the last.
 const schedule = (clip: Clip, start: number, fps: number, cps: number) => {
@@ -128,7 +128,7 @@ const Hook: React.FC<SceneProps> = ({part}) => {
 
 const Problem: React.FC<SceneProps> = () => {
 	const f = useCurrentFrame();
-	const stock = data.headline.find((b) => b.name === 'whisper-small')!.value;
+	const stock = data.headline.find((b) => b.name === STOCK)!.value;
 	const ring = interpolate(f - 175, [0, 14], [0, 1], clamp);
 	return (
 		<Page n={3} examinerColumn={false}>
@@ -188,7 +188,7 @@ const How: React.FC<SceneProps> = ({part}) => {
 				<Fade at={10} style={{fontSize: 34, fontWeight: 700, marginBottom: 14}}>Practice (training)</Fade>
 				{cell('Speakers', '4 people with dysarthria and the typical speakers', 18)}
 				{cell('Sentences', '70% of the prompts', 26)}
-				{cell('Model', 'OpenAI whisper-small, fine-tuned on one GPU', 34)}
+				{cell('Model', `OpenAI ${STOCK}, fine-tuned on one GPU`, 34)}
 			</div>
 			<div style={{position: 'absolute', top: 210, left: 900, width: 700}}>
 				<Fade at={60} style={{fontSize: 34, fontWeight: 700, marginBottom: 14}}>This paper (test)</Fade>
@@ -215,13 +215,15 @@ const Results: React.FC<SceneProps> = ({part}) => {
 	const words = Object.fromEntries(data.headlineWords.map((b) => [b.name, b.value]));
 	const max = Math.max(...bars.map((b) => b.hi ?? b.value)) * 1.05;
 	const ours = bars.find((b) => b.name === 'Clear Voice')!.value;
-	const stock = bars.find((b) => b.name === 'whisper-small')!.value;
+	const stock = bars.find((b) => b.name === STOCK)!.value;
 	const large = bars.find((b) => b.name === 'whisper-large-v3')?.value ?? Infinity;
 	const verdict =
 		ours < Math.min(stock, large)
 			? 'Clear Voice made the fewest mistakes.'
 			: ours < stock
-				? 'Clear Voice beat its own base model; the 6× bigger model still made fewer mistakes.'
+				? (wordCer('Clear Voice') ?? 9) < Math.min(wordCer(STOCK) ?? 9, wordCer('whisper-large-v3') ?? 9)
+					? `Better than its base model. On sentences the ${BIGGER} bigger model still wins; on single words, Clear Voice does.`
+					: `Clear Voice beat its own base model; the ${BIGGER} bigger model still made fewer mistakes.`
 				: 'Clear Voice did not beat stock Whisper on this paper.';
 	const W = 620;
 	return (

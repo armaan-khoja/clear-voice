@@ -3,6 +3,7 @@ import {loadFont as loadKalam} from '@remotion/google-fonts/Kalam';
 import {loadFont as loadFranklin} from '@remotion/google-fonts/LibreFranklin';
 import {AbsoluteFill, Audio, interpolate, Sequence, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {Token} from '../../data';
+import {BIGGER, STOCK} from '../../data';
 import {easeOut, useWave} from '../../shared/audio';
 import {OVERLAP} from '../../shared/timeline';
 
@@ -23,8 +24,8 @@ export const E = {
 
 // Candidate letters follow the order the cover page lists them.
 export const CANDIDATES: {key: string; letter: string; name: string; note: string; ink: string}[] = [
-	{key: 'whisper-small', letter: 'A', name: 'whisper-small', note: 'stock', ink: E.pencil},
-	{key: 'whisper-large-v3', letter: 'B', name: 'whisper-large-v3', note: 'stock, 6× bigger', ink: E.ink},
+	{key: STOCK, letter: 'A', name: STOCK, note: 'stock, what Clear Voice started from', ink: E.pencil},
+	{key: 'whisper-large-v3', letter: 'B', name: 'whisper-large-v3', note: `stock, ${BIGGER} bigger`, ink: E.ink},
 	{key: 'Clear Voice', letter: 'C', name: 'Clear Voice', note: 'ours', ink: E.blue},
 ];
 
