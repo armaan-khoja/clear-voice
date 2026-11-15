@@ -99,3 +99,19 @@ def pick_demo_clips(preds_ft: pd.DataFrame, per_severity: int = 5, seed: int = 4
         picks.append(sent.sample(n_sent, random_state=seed))
         picks.append(word.sample(min(per_severity - n_sent, len(word)), random_state=seed))
     return pd.concat(picks).reset_index(drop=True)
+
+
+def compare_validation(val: dict) -> pd.DataFrame:
+    """Score each model on its fold's validation sentences and mark the lower word error rate per fold as chosen.
+
+    `val` maps a model name (e.g. 'holdA', 'holdA_medium') to its validation predictions. Choosing between
+    models uses validation only, never the test splits.
+    """
+    rows = []
+    for model, df in val.items():
+        s = score(list(df["ref"]), list(df["hyp"]))
+        rows.append({"model": model, "fold": df["fold"].iloc[0], "system": df["system"].iloc[0],
+                     "wer": s["wer"], "cer": s["cer"], "n": s["n"]})
+    t = pd.DataFrame(rows)
+    t["chosen"] = t["wer"] == t.groupby("fold")["wer"].transform("min")
+    return t.sort_values(["fold", "wer"]).reset_index(drop=True)

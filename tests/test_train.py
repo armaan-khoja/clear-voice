@@ -53,3 +53,13 @@ def test_finetune_removes_intermediate_checkpoints_to_save_drive_space(tmp_path)
     finetune(cfg, rows.iloc[:3], rows.iloc[3:], audio, str(tmp_path / "run"))
     assert not (tmp_path / "run" / "checkpoints").exists()
     assert (tmp_path / "run" / "best").exists()
+
+
+def test_finetune_with_gradient_checkpointing_and_accumulation(tmp_path):
+    """The whisper-medium settings (small batches, accumulation, checkpointing) must train and save a model."""
+    rows, audio = _data()
+    cfg = TrainConfig(base_model="openai/whisper-tiny", max_steps=2, eval_steps=1, save_steps=1, batch_size=1,
+                      grad_accum=2, gradient_checkpointing=True, eval_batch_size=2, num_workers=0)
+    out = finetune(cfg, rows.iloc[:3], rows.iloc[3:], audio, str(tmp_path / "run"))
+    model, processor = load_model(out)
+    assert isinstance(transcribe(model, processor, [audio[0]], batch_size=1)[0], str)

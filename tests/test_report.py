@@ -82,3 +82,18 @@ def test_headline_adds_a_median_that_one_runaway_clip_cannot_dominate():
     assert h["word_cer"] > 1           # the corpus rate is dominated by the runaway clip
     assert h["word_cer_median"] == 0   # the typical clip is still perfect
     assert "sentence_wer_median" in h.index
+
+
+def test_validation_comparison_picks_the_lower_word_error_rate_per_fold():
+    from clearvoice.report import compare_validation
+
+    def val(system, fold, hyp):
+        return pd.DataFrame({"ref": ["the cat sat down", "a dog"], "hyp": hyp, "fold": fold, "system": system})
+
+    t = compare_validation({
+        "holdA": val("Clear Voice", "A", ["the hat sat down", "a dog"]),
+        "holdA_medium": val("Clear Voice (medium)", "A", ["the cat sat down", "a dog"]),
+        "holdB": val("Clear Voice", "B", ["the cat sat down", "a dog"]),
+    })
+    assert set(t.columns) >= {"model", "fold", "system", "wer", "cer", "n", "chosen"}
+    assert sorted(t[t.chosen].model) == ["holdA_medium", "holdB"]

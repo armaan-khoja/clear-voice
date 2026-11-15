@@ -46,3 +46,39 @@ def test_real_runs_write_to_the_main_folder(tmp_path, monkeypatch):
     ns = {}
     exec(_setup_code(), ns)
     assert not ns["WORK"].endswith("/smoke")
+
+
+def _finetune_code():
+    nb = nbformat.read(NB_DIR / "03_finetune.ipynb", as_version=4)
+    return [c.source for c in nb.cells if c.cell_type == "code"]
+
+
+def _finetune_settings():
+    return next(c for c in _finetune_code() if "HELDOUT =" in c)
+
+
+def test_finetune_settings_default_to_the_main_model(monkeypatch):
+    for k in ["CV_HELDOUT", "CV_BASE", "CV_PUSH_TO_HUB"]:
+        monkeypatch.delenv(k, raising=False)
+    ns = {}
+    exec(_finetune_settings(), ns)
+    assert (ns["HELDOUT"], ns["name"], ns["SYSTEM"], ns["TRAIN_OVERRIDES"], ns["PUSH_TO_HUB"]) == \
+        ("A", "holdA", "Clear Voice", {}, True)
+
+
+def test_finetune_settings_can_come_from_the_environment(monkeypatch):
+    from clearvoice.train import TrainConfig
+
+    monkeypatch.setenv("CV_HELDOUT", "B")
+    monkeypatch.setenv("CV_BASE", "medium")
+    monkeypatch.setenv("CV_PUSH_TO_HUB", "0")
+    ns = {}
+    exec(_finetune_settings(), ns)
+    assert ns["name"] == "holdB_medium" and ns["SYSTEM"] == "Clear Voice (medium)" and ns["PUSH_TO_HUB"] is False
+    assert TrainConfig(**ns["TRAIN_OVERRIDES"]).base_model == "openai/whisper-medium"
+
+
+def test_finetune_reads_splits_by_fold_and_saves_validation_predictions():
+    code = "\n".join(_finetune_code())
+    assert 'rows_for(meta, SPLITS, f"hold{HELDOUT}", "train")' in code
+    assert "preds_ft_{name}.csv" in code and "val_ft_{name}.csv" in code

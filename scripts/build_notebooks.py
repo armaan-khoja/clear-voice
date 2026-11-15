@@ -117,15 +117,23 @@ headline({s: read_preds(f"{WORK}/results/preds_zeroshot_{s}.csv") for s in ["whi
         "**Run it twice: once with `HELDOUT = \"A\"`, then with `HELDOUT = \"B\"`.** About 60-90 minutes each on an L4. "
         "Keep this browser tab open while it trains.",
         [
-            ("code", '''HELDOUT = "A"        # run once with "A", then once with "B"
-PUSH_TO_HUB = True   # uploads the model to your Hugging Face account for the demo (needs the HF_TOKEN secret)
-RETRAIN = False      # False: if this fold's model is already on Drive, skip straight to testing'''),
+            ("code", '''import os
+# Each setting can also come from an environment variable, so one Colab session can run several in a row.
+HELDOUT = os.environ.get("CV_HELDOUT", "A")    # run once with "A", then once with "B"
+BASE = os.environ.get("CV_BASE", "small")      # "small" is Clear Voice; "medium" is a bigger model tried as an upgrade
+PUSH_TO_HUB = os.environ.get("CV_PUSH_TO_HUB", "1") == "1"  # uploads the model for the demo (needs the HF_TOKEN secret)
+RETRAIN = False      # False: if this model is already on Drive, skip straight to testing
+name = f"hold{HELDOUT}" if BASE == "small" else f"hold{HELDOUT}_{BASE}"
+SYSTEM = "Clear Voice" if BASE == "small" else f"Clear Voice ({BASE})"
+# whisper-medium learns what it can within ~1,000 steps; smaller batches with accumulation fit it on an L4.
+TRAIN_OVERRIDES = {} if BASE == "small" else dict(base_model=f"openai/whisper-{BASE}", max_steps=1000, batch_size=8,
+                                                   grad_accum=2, gradient_checkpointing=True)
+print("Training", SYSTEM, "with fold", HELDOUT, "held out ->", name)'''),
             ("code", LOAD),
             ("code", '''from clearvoice.data import load_audio
 from clearvoice.pipeline import rows_for
-name = f"hold{HELDOUT}"
-train = rows_for(meta, SPLITS, name, "train")
-val = rows_for(meta, SPLITS, name, "val")
+train = rows_for(meta, SPLITS, f"hold{HELDOUT}", "train")
+val = rows_for(meta, SPLITS, f"hold{HELDOUT}", "val")
 if SMOKE:
     train, val = train.head(16), val.head(8)
 print(len(train), "training clips from", sorted(train.speaker.unique()))
@@ -141,7 +149,7 @@ best = kept_model(WORK, name)
 if best and not RETRAIN:
     print("Using the model already trained:", best)
 else:
-    cfg = TrainConfig()
+    cfg = TrainConfig(**TRAIN_OVERRIDES)
     if SMOKE:
         cfg = TrainConfig(max_steps=4, eval_steps=2, save_steps=2, batch_size=4, eval_batch_size=4)
     # Train on Colab's own disk: checkpoints are ~1 GB each and would fill Google Drive (deleted files go to its trash).
@@ -157,10 +165,13 @@ from clearvoice.pipeline import librispeech_check, predict_fold
 from clearvoice.report import leakage
 model, processor = load_model(best)
 preds = predict_fold(model, processor, parquets, meta, SPLITS, HELDOUT,
-                     ["test_seen", "test_newsent", "test_strict"], "Clear Voice", batch_size=32, limit=LIMIT)
+                     ["test_seen", "test_newsent", "test_strict"], SYSTEM, batch_size=32, limit=LIMIT)
 preds.to_csv(f"{WORK}/results/preds_ft_{name}.csv", index=False)
+# Validation predictions: the only fair way to compare model choices (test scores never choose a model).
+predict_fold(model, processor, parquets, meta, SPLITS, HELDOUT, ["val"], SYSTEM, batch_size=32,
+             limit=LIMIT).to_csv(f"{WORK}/results/val_ft_{name}.csv", index=False)
 ls = librispeech_check(model, processor, n=20 if SMOKE else 200, batch_size=32)
-pd.DataFrame([{"system": "Clear Voice", "fold": HELDOUT, "librispeech_wer": ls["wer"], "n": ls["n"]}]).to_csv(
+pd.DataFrame([{"system": SYSTEM, "fold": HELDOUT, "librispeech_wer": ls["wer"], "n": ls["n"]}]).to_csv(
     f"{WORK}/results/librispeech_ft_{name}.csv", index=False)
 leakage(preds)'''),
             ("code", '''if PUSH_TO_HUB and not SMOKE:  # never upload a smoke-test model
