@@ -115,3 +115,17 @@ def compare_validation(val: dict) -> pd.DataFrame:
     t = pd.DataFrame(rows)
     t["chosen"] = t["wer"] == t.groupby("fold")["wer"].transform("min")
     return t.sort_values(["fold", "wer"]).reset_index(drop=True)
+
+
+def choose_architecture(table: pd.DataFrame) -> str:
+    """The base model ('small', 'medium', ...) with the lowest mean validation WER over both folds.
+
+    `table` is compare_validation's output; model names look like 'holdA' (small) or 'holdA_medium'. Only
+    architectures with a model for every fold are eligible, so Clear Voice is one architecture, not a mix.
+    """
+    t = table.copy()
+    t["arch"] = t["model"].map(lambda m: m.split("_", 1)[1] if "_" in m else "small")
+    folds = t["fold"].nunique()
+    complete = t.groupby("arch")["fold"].nunique() == folds
+    means = t[t["arch"].isin(complete[complete].index)].groupby("arch")["wer"].mean()
+    return means.idxmin()

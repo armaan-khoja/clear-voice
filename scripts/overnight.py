@@ -56,8 +56,11 @@ def plan_round2() -> list:
 
 
 def plan_round3() -> list:
-    """Personalisation tuned on validation prompts (new sentences), replacing round 2's biased choice."""
-    return [Step("personal tuning on new sentences", "scripts/personal_tune.py", ["results/personalise_tuned_v2.csv"])]
+    """Personalisation tuned on validation prompts (new sentences), then the final tables for the chosen model."""
+    return [
+        Step("personal tuning on new sentences", "scripts/personal_tune.py", ["results/personalise_tuned_v2.csv"]),
+        Step("final tables", "scripts/final_report.py", ["results/final_summary.md"]),
+    ]
 
 
 def validation_files(work: str) -> list:

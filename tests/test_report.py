@@ -97,3 +97,14 @@ def test_validation_comparison_picks_the_lower_word_error_rate_per_fold():
     })
     assert set(t.columns) >= {"model", "fold", "system", "wer", "cer", "n", "chosen"}
     assert sorted(t[t.chosen].model) == ["holdA_medium", "holdB"]
+
+
+def test_architecture_is_chosen_by_mean_validation_wer_across_both_folds():
+    from clearvoice.report import choose_architecture
+
+    table = pd.DataFrame([
+        {"model": "holdA", "fold": "A", "wer": 0.180}, {"model": "holdB", "fold": "B", "wer": 0.164},
+        {"model": "holdA_medium", "fold": "A", "wer": 0.169}, {"model": "holdB_medium", "fold": "B", "wer": 0.133},
+        {"model": "holdA_large-v3-turbo", "fold": "A", "wer": 0.150},  # only one fold: cannot be chosen
+    ])
+    assert choose_architecture(table) == "medium"
