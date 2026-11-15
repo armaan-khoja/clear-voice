@@ -1,6 +1,6 @@
 # Clear Voice
 
-Track: Languages. Team: TODO(team names).
+Track: Languages. Team: Armaan Khoja and Suvir Aylawadi.
 
 > Research prototype, not a medical device. It uses the TORGO database, which is licensed for non-commercial research only.
 

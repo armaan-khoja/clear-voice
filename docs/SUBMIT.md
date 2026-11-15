@@ -15,7 +15,7 @@ First submission by 8 PM ET, final by 10 PM ET. Submissions close at 11:59 PM ET
 
 ## Only you can do these
 
-1. **Team names.** Tell Claude, and they go into the README and the closing shot.
+1. **Team names (done):** Armaan Khoja and Suvir Aylawadi, in the README and the closing shot.
 2. **Pick a look:** Exam, Lab or Proof.
 3. **Record the narration.** Read `video/SCRIPT.md` on a phone in a quiet room. Save it as `video/public/voiceover.wav`, then tell Claude to re-render. The music drops under your voice automatically.
 4. **Optional, for the best opening clip:** when macOS asks whether Claude can access your Downloads folder, allow it. Claude can then read the full per-clip predictions and pick the opening example by the documented rule. Without it, the opening comes from the random sample by a second documented rule.
