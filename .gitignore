@@ -17,3 +17,10 @@ work/
 app/demo_clips.csv
 app/summary.md
 app/figures/
+
+# demo video build output
+video/node_modules/
+video/out/
+video/public/spec/
+video/public/clips/
+.impeccable/

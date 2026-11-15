@@ -1,0 +1,17 @@
+{
+  "fps": 30,
+  "overlap": 12,
+  "hookPlay": 45,
+  "demoPlay": 40,
+  "frames": {
+    "title": 165,
+    "hook": 400,
+    "problem": 390,
+    "demo": 360,
+    "how": 400,
+    "results": 360,
+    "honest": 330,
+    "personal": 300,
+    "close": 270
+  }
+}

@@ -1,0 +1,318 @@
+{
+  "placeholder": true,
+  "team": "Team names here",
+  "repoUrl": "github.com/armaan-khoja/clear-voice",
+  "demoUrl": "",
+  "nRecordings": 16552,
+  "nSpeakers": 15,
+  "nDysarthric": 8,
+  "trainMinutes": 30,
+  "headline": [
+    {
+      "name": "whisper-small",
+      "value": 0.5156,
+      "lo": 0.2159,
+      "hi": 1.0465
+    },
+    {
+      "name": "whisper-large-v3",
+      "value": 0.5156,
+      "lo": 0.2159,
+      "hi": 1.0465
+    },
+    {
+      "name": "Clear Voice",
+      "value": 0.5156,
+      "lo": 0.2159,
+      "hi": 1.0465
+    }
+  ],
+  "headlineWords": [
+    {
+      "name": "whisper-small",
+      "value": 3.6837
+    },
+    {
+      "name": "whisper-large-v3",
+      "value": 3.6837
+    },
+    {
+      "name": "Clear Voice",
+      "value": 3.6837
+    }
+  ],
+  "leakage": [
+    {
+      "name": "New speaker, seen sentence",
+      "value": 0.8293
+    },
+    {
+      "name": "Seen speaker, new sentence",
+      "value": 0.5156
+    },
+    {
+      "name": "New speaker, new sentence",
+      "value": 0.5156
+    }
+  ],
+  "stockTypical": 0.0,
+  "librispeech": [
+    {
+      "name": "whisper-small",
+      "value": 0.05
+    }
+  ],
+  "personalisation": [
+    {
+      "speaker": "M01",
+      "severity": "severe",
+      "points": [
+        {
+          "minutes": 0,
+          "wer": 0.9
+        },
+        {
+          "minutes": 2,
+          "wer": 0.8
+        },
+        {
+          "minutes": 5,
+          "wer": 0.7
+        },
+        {
+          "minutes": 10,
+          "wer": 0.6
+        }
+      ]
+    }
+  ],
+  "opening": {
+    "rowId": 15620,
+    "file": "clips/15620.wav",
+    "spec": "spec/15620.png",
+    "speaker": "F03",
+    "severity": "moderate",
+    "duration": 2.21,
+    "ref": "it was a good win for us",
+    "systems": {
+      "whisper-small": {
+        "text": "it was a good win for us",
+        "tokens": [
+          {
+            "w": "it",
+            "tag": "ok"
+          },
+          {
+            "w": "was",
+            "tag": "ok"
+          },
+          {
+            "w": "a",
+            "tag": "ok"
+          },
+          {
+            "w": "good",
+            "tag": "ok"
+          },
+          {
+            "w": "win",
+            "tag": "ok"
+          },
+          {
+            "w": "for",
+            "tag": "ok"
+          },
+          {
+            "w": "us",
+            "tag": "ok"
+          }
+        ],
+        "wer": 0.0
+      },
+      "whisper-large-v3": {
+        "text": "it was a good win for us",
+        "tokens": [
+          {
+            "w": "it",
+            "tag": "ok"
+          },
+          {
+            "w": "was",
+            "tag": "ok"
+          },
+          {
+            "w": "a",
+            "tag": "ok"
+          },
+          {
+            "w": "good",
+            "tag": "ok"
+          },
+          {
+            "w": "win",
+            "tag": "ok"
+          },
+          {
+            "w": "for",
+            "tag": "ok"
+          },
+          {
+            "w": "us",
+            "tag": "ok"
+          }
+        ],
+        "wer": 0.0
+      },
+      "Clear Voice": {
+        "text": "it was a good win for us",
+        "tokens": [
+          {
+            "w": "it",
+            "tag": "ok"
+          },
+          {
+            "w": "was",
+            "tag": "ok"
+          },
+          {
+            "w": "a",
+            "tag": "ok"
+          },
+          {
+            "w": "good",
+            "tag": "ok"
+          },
+          {
+            "w": "win",
+            "tag": "ok"
+          },
+          {
+            "w": "for",
+            "tag": "ok"
+          },
+          {
+            "w": "us",
+            "tag": "ok"
+          }
+        ],
+        "wer": 0.0
+      }
+    }
+  },
+  "demo": [
+    {
+      "rowId": 15619,
+      "file": "clips/15619.wav",
+      "spec": "spec/15619.png",
+      "speaker": "F03",
+      "severity": "moderate",
+      "duration": 4.26,
+      "ref": "the misguided souls have lost their way",
+      "systems": {
+        "whisper-small": {
+          "text": "the misguided souls have lost their way",
+          "tokens": [
+            {
+              "w": "the",
+              "tag": "ok"
+            },
+            {
+              "w": "misguided",
+              "tag": "ok"
+            },
+            {
+              "w": "souls",
+              "tag": "ok"
+            },
+            {
+              "w": "have",
+              "tag": "ok"
+            },
+            {
+              "w": "lost",
+              "tag": "ok"
+            },
+            {
+              "w": "their",
+              "tag": "ok"
+            },
+            {
+              "w": "way",
+              "tag": "ok"
+            }
+          ],
+          "wer": 0.0
+        },
+        "whisper-large-v3": {
+          "text": "the misguided souls have lost their way",
+          "tokens": [
+            {
+              "w": "the",
+              "tag": "ok"
+            },
+            {
+              "w": "misguided",
+              "tag": "ok"
+            },
+            {
+              "w": "souls",
+              "tag": "ok"
+            },
+            {
+              "w": "have",
+              "tag": "ok"
+            },
+            {
+              "w": "lost",
+              "tag": "ok"
+            },
+            {
+              "w": "their",
+              "tag": "ok"
+            },
+            {
+              "w": "way",
+              "tag": "ok"
+            }
+          ],
+          "wer": 0.0
+        },
+        "Clear Voice": {
+          "text": "the misguided souls have lost their way",
+          "tokens": [
+            {
+              "w": "the",
+              "tag": "ok"
+            },
+            {
+              "w": "misguided",
+              "tag": "ok"
+            },
+            {
+              "w": "souls",
+              "tag": "ok"
+            },
+            {
+              "w": "have",
+              "tag": "ok"
+            },
+            {
+              "w": "lost",
+              "tag": "ok"
+            },
+            {
+              "w": "their",
+              "tag": "ok"
+            },
+            {
+              "w": "way",
+              "tag": "ok"
+            }
+          ],
+          "wer": 0.0
+        }
+      }
+    }
+  ],
+  "hasVoiceover": false
+}
