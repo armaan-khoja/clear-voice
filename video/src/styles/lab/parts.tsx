@@ -19,7 +19,7 @@ export const L = {
 	cursor: '#c62828',
 	wrongFill: '#f9dcd7',
 	clear: '#2357c6',
-	small: '#8c8c8c',
+	small: '#666666',
 	large: '#1b1b1b',
 };
 
@@ -81,7 +81,7 @@ const Tier: React.FC<{label: string; color: string; tokens: Token[]; top: number
 				})}
 			</div>
 			{wer !== undefined ? (
-				<div style={{position: 'absolute', left: PX - 100 + PW + 14, top: 18, fontFamily: MONO, fontSize: 22, color: L.muted, opacity: interpolate(f - at - 20, [0, 10], [0, 1], clamp)}}>
+				<div style={{position: 'absolute', left: PX - 100 + PW + 10, top: 16, fontFamily: MONO, fontSize: 26, fontWeight: 600, color: L.ink, opacity: interpolate(f - at - 20, [0, 10], [0, 1], clamp)}}>
 					{pct(wer)}
 				</div>
 			) : null}

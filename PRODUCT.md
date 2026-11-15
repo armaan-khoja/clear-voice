@@ -27,7 +27,7 @@ Most fine-tuning demos on TORGO score a random split, where the model has alread
 
 ## Capabilities and Constraints
 
-- whisper-small fine-tuned on TORGO (Hugging Face mirror abnerh/TORGO-database), two speaker folds; baselines are stock whisper-small and whisper-large-v3; whisper-medium is being tried as a validated upgrade.
+- whisper-medium fine-tuned on TORGO (Hugging Face mirror abnerh/TORGO-database), two speaker folds, chosen on validation over fine-tuned whisper-small and whisper-large-v3-turbo; baselines are stock whisper-medium (its base), whisper-small and whisper-large-v3.
 - Metrics: word error rate on sentences, character error rate on single words, speaker-level bootstrap 95% intervals, per-clip medians.
 - Research prototype, not a medical device. TORGO is non-commercial research data: audio may appear in the demo and video, never in the repository.
 - Only 8 dysarthric speakers exist in TORGO; this is a stated limitation.

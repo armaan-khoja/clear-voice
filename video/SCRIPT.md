@@ -13,7 +13,7 @@ How to record: read it once at a calm pace on a phone in a quiet room, about 15 
 | 0:42.9 | demo | Moderate. [Then silence while the 3-second recording plays.] Here they make the same number of mistakes. |
 | 0:54.6 | demo | And severe. [Then silence while the 7-second recording plays.] Here stock Whisper does better. Picked at random means it doesn't always win. |
 | 1:10.9 | how | We fine-tuned OpenAI's Whisper on more than 16,000 recordings from the TORGO database. What matters most is the test: the people and sentences we test on never appear in training. |
-| 1:23.8 | results | Here's the result on new speakers saying new sentences. Clear Voice gets 29 percent of words wrong. The model it started from gets 34, and a model twice its size gets 22. On single words, Clear Voice is the best of the three: 39 percent of letters wrong, against 96 for the model it started from. |
+| 1:23.8 | results | Here's the result on new speakers saying new sentences. Clear Voice gets 29 percent of words wrong, the model it started from 34, and a model twice its size 22. With only eight test speakers, the first two ranges overlap. On single words, Clear Voice is the best of the three: 39 percent of letters wrong, against 96 for the model it started from. |
 | 1:43.4 | honest | Tested on sentences it had practised, its error rate would be 16 percent: 14 points better, and not real. So we report the harder number. |
 | 1:54.0 | personal | Ten minutes of one person's own voice helped a little: for M01, with severe dysarthria, errors fell from 58 to 52 percent. |
 | 2:03.6 | close | Next, we want to try it with speech therapists on real dictation. We're Team names here, and this is Clear Voice. |

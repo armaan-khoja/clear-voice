@@ -68,7 +68,7 @@ def main() -> None:
     if ours < min(stock, large):
         verdict = f"Clear Voice gets {pct(ours)} of words wrong. The model it started from gets {pct(stock)}, and a model {bigger} gets {pct(large)}."
     elif ours < stock:
-        verdict = f"Clear Voice gets {pct(ours)} of words wrong. The model it started from gets {round(stock * 100)}, and a model {bigger} gets {round(large * 100)}."
+        verdict = f"Clear Voice gets {pct(ours)} of words wrong, the model it started from {round(stock * 100)}, and a model {bigger} {round(large * 100)}. With only eight test speakers, the first two ranges overlap."
     else:
         verdict = f"Clear Voice gets {pct(ours)} of words wrong. Stock Whisper gets {pct(stock)}, so on this test it is not better yet."
     if "Clear Voice" in w and base in w and w["Clear Voice"] < min(w[base], w.get("whisper-large-v3", 9)):

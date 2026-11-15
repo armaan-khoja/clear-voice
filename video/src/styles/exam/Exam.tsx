@@ -141,9 +141,9 @@ const Problem: React.FC<SceneProps> = () => {
 			<Box title="Source B  How stock speech recognition does" at={70} style={{top: 520, left: LEFT, width: 1620}}>
 				<div style={{fontSize: 38, lineHeight: 1.45, maxWidth: 1480, position: 'relative'}}>
 					Dictation and live captions are trained mostly on typical voices. On sentences from speakers with dysarthria, stock Whisper gets{' '}
-					<span style={{position: 'relative', fontWeight: 800, fontSize: 54, whiteSpace: 'nowrap'}}>
+					<span style={{position: 'relative', fontWeight: 800, fontSize: 54, lineHeight: 0, whiteSpace: 'nowrap', margin: '0 16px 0 20px'}}>
 						{pct(stock)}
-						<svg style={{position: 'absolute', left: -22, top: -10, overflow: 'visible'}} width={150} height={80}>
+						<svg style={{position: 'absolute', left: -22, top: -2, overflow: 'visible'}} width={150} height={80}>
 							<path d="M128 20 C 122 0, 22 -2, 8 24 C -2 46, 30 74, 82 70 C 132 66, 150 40, 120 14" fill="none" stroke={E.red} strokeWidth={3} strokeLinecap="round" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - ring} />
 						</svg>
 					</span>{' '}
@@ -189,6 +189,7 @@ const How: React.FC<SceneProps> = ({part}) => {
 				{cell('Speakers', '4 people with dysarthria and the typical speakers', 18)}
 				{cell('Sentences', '70% of the prompts', 26)}
 				{cell('Model', `OpenAI ${STOCK}, fine-tuned on one GPU`, 34)}
+				{cell('Checkpoint', 'the other 10% of the prompts, only to pick when to stop', 42)}
 			</div>
 			<div style={{position: 'absolute', top: 210, left: 900, width: 700}}>
 				<Fade at={60} style={{fontSize: 34, fontWeight: 700, marginBottom: 14}}>This paper (test)</Fade>
@@ -196,12 +197,12 @@ const How: React.FC<SceneProps> = ({part}) => {
 				{cell('Sentences', '20% of the prompts, never used in practice', 76)}
 				{cell('Then', 'the groups swap, so every speaker sits the paper once', 84)}
 			</div>
-			<Box title="Security" at={150} style={{top: 690, left: LEFT, width: COL - LEFT - 30}}>
+			<Box title="Security" at={150} style={{top: 760, left: LEFT, width: COL - LEFT - 30}}>
 				<div style={{fontSize: 32, lineHeight: 1.45}}>
 					Near-identical prompts, such as “as I choose” and “as I chose”, were kept on the same side, so no question can be answered from memory. {data.nRecordings.toLocaleString('en-US')} recordings, {data.nDysarthric} speakers with dysarthria.
 				</div>
 			</Box>
-			<div style={{position: 'absolute', top: 760, left: COL + 40}}>
+			<div style={{position: 'absolute', top: 830, left: COL + 40}}>
 				<Tick at={185} size={54} />
 			</div>
 		</Page>
@@ -222,10 +223,10 @@ const Results: React.FC<SceneProps> = ({part}) => {
 			? 'Clear Voice made the fewest mistakes.'
 			: ours < stock
 				? (wordCer('Clear Voice') ?? 9) < Math.min(wordCer(STOCK) ?? 9, wordCer('whisper-large-v3') ?? 9)
-					? `Better than its base model. On sentences the ${BIGGER} bigger model still wins; on single words, Clear Voice does.`
-					: `Clear Voice beat its own base model; the ${BIGGER} bigger model still made fewer mistakes.`
+					? `Fewer errors than its base model, though the ranges overlap; the ${BIGGER} bigger model still leads. On single words, Clear Voice is best.`
+					: `Fewer errors than its base model, though the ranges overlap; the ${BIGGER} bigger model still made fewer mistakes.`
 				: 'Clear Voice did not beat stock Whisper on this paper.';
-	const W = 620;
+	const W = 520;
 	return (
 		<Page n={n}>
 			<div style={{position: 'absolute', top: 128, left: LEFT, fontSize: 48, fontWeight: 800}}>Results</div>
@@ -234,8 +235,8 @@ const Results: React.FC<SceneProps> = ({part}) => {
 			</Fade>
 			<div style={{position: 'absolute', top: 270, left: LEFT, width: COL - LEFT - 30, fontSize: 30}}>
 				<div style={{display: 'flex', borderBottom: `2px solid ${E.rule}`, paddingBottom: 12, fontWeight: 700}}>
-					<div style={{width: 440}}>Candidate</div>
-					<div style={{width: W + 160}}>Sentences: words wrong (95% range)</div>
+					<div style={{width: 380}}>Candidate</div>
+					<div style={{width: W + 300}}>Sentences: words wrong (95% range)</div>
 					<div style={{flex: 1, textAlign: 'right'}}>Single words: letters wrong</div>
 				</div>
 				{bars.map((b, i) => {
@@ -243,18 +244,22 @@ const Results: React.FC<SceneProps> = ({part}) => {
 					const t = easeOut((f - 30 - i * 16) / 24);
 					return (
 						<div key={b.name} style={{display: 'flex', alignItems: 'center', borderBottom: `1.5px solid ${E.hair}`, padding: '26px 0', opacity: t > 0 ? 1 : 0}}>
-							<div style={{width: 440}}>
+							<div style={{width: 380}}>
 								{c.letter} <span style={{fontWeight: 700, color: c.ink}}>{c.name}</span>
 								<div style={{fontSize: 22, color: E.soft}}>{c.note}</div>
 							</div>
-							<div style={{width: W + 160, display: 'flex', alignItems: 'center', gap: 20}}>
-								<svg width={W} height={40}>
+							<div style={{width: W + 300, display: 'flex', alignItems: 'center', gap: 20}}>
+								<svg width={W} height={40} style={{flexShrink: 0, overflow: 'visible'}}>
 									<rect x={0} y={8} width={(b.value / max) * W * t} height={24} fill={c.ink} />
 									{b.lo !== undefined && b.hi !== undefined ? (
-										<g stroke={E.ink} strokeWidth={2} opacity={t}>
-											<line x1={(b.lo / max) * W} x2={(b.hi / max) * W} y1={20} y2={20} />
-											<line x1={(b.lo / max) * W} x2={(b.lo / max) * W} y1={12} y2={28} />
-											<line x1={(b.hi / max) * W} x2={(b.hi / max) * W} y1={12} y2={28} />
+										<g opacity={t}>
+											{[{stroke: E.paper, w: 5}, {stroke: E.ink, w: 2}].map((s) => (
+												<g key={s.w} stroke={s.stroke} strokeWidth={s.w}>
+													<line x1={(b.lo / max) * W} x2={(b.hi / max) * W} y1={20} y2={20} />
+													<line x1={(b.lo / max) * W} x2={(b.lo / max) * W} y1={12} y2={28} />
+													<line x1={(b.hi / max) * W} x2={(b.hi / max) * W} y1={12} y2={28} />
+												</g>
+											))}
 										</g>
 									) : null}
 								</svg>
@@ -324,21 +329,22 @@ const Personal: React.FC<SceneProps> = ({part}) => {
 	const maxY = Math.ceil((top * 1.1) / 0.1) * 0.1;
 	const X = (m: number) => x0 + (m / 10) * W;
 	const Y = (v: number) => y0 + (1 - v / maxY) * H;
+	const bands = Math.max(1, Math.round(maxY / 0.1)); // one major grid line per 10%
 	const inks = [E.blue, E.ink, E.pencil, E.red];
 	const first = series[0];
 	return (
 		<Page n={n}>
 			<Question n={2 + (part.total ?? 1)} top={128} at={2}>
-				How much does a speaker’s own voice help? The model revises with 2, 5 and 10 minutes of one person’s recordings.
+				How much does a speaker’s own voice help? The model is trained further on 2, 5 and 10 minutes of one person’s recordings.
 			</Question>
 			<svg width={1920} height={1080} style={{position: 'absolute', inset: 0}}>
 				<defs>
-					<pattern id="minor" width={W / 50} height={H / 28} patternUnits="userSpaceOnUse" x={x0} y={y0}>
-						<path d={`M ${W / 50} 0 L 0 0 0 ${H / 28}`} fill="none" stroke="#c8d6e4" strokeWidth={0.8} />
+					<pattern id="minor" width={W / 50} height={H / (bands * 5)} patternUnits="userSpaceOnUse" x={x0} y={y0}>
+						<path d={`M ${W / 50} 0 L 0 0 0 ${H / (bands * 5)}`} fill="none" stroke="#c8d6e4" strokeWidth={0.8} />
 					</pattern>
-					<pattern id="major" width={W / 10} height={H / 5.6} patternUnits="userSpaceOnUse" x={x0} y={y0}>
-						<rect width={W / 10} height={H / 5.6} fill="url(#minor)" />
-						<path d={`M ${W / 10} 0 L 0 0 0 ${H / 5.6}`} fill="none" stroke="#97b2cc" strokeWidth={1.4} />
+					<pattern id="major" width={W / 10} height={H / bands} patternUnits="userSpaceOnUse" x={x0} y={y0}>
+						<rect width={W / 10} height={H / bands} fill="url(#minor)" />
+						<path d={`M ${W / 10} 0 L 0 0 0 ${H / bands}`} fill="none" stroke="#97b2cc" strokeWidth={1.4} />
 					</pattern>
 				</defs>
 				<rect x={x0} y={y0} width={W} height={H} fill="url(#major)" stroke="#97b2cc" strokeWidth={1.4} />

@@ -24,7 +24,7 @@ export const E = {
 
 // Candidate letters follow the order the cover page lists them.
 export const CANDIDATES: {key: string; letter: string; name: string; note: string; ink: string}[] = [
-	{key: STOCK, letter: 'A', name: STOCK, note: 'stock, what Clear Voice started from', ink: E.pencil},
+	{key: STOCK, letter: 'A', name: STOCK, note: 'stock base model', ink: E.pencil},
 	{key: 'whisper-large-v3', letter: 'B', name: 'whisper-large-v3', note: `stock, ${BIGGER} bigger`, ink: E.ink},
 	{key: 'Clear Voice', letter: 'C', name: 'Clear Voice', note: 'ours', ink: E.blue},
 ];

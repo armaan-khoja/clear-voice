@@ -9,9 +9,21 @@ import {Analysis, Caption, L, MONO, Rise, SANS, Sheet, SYSTEMS} from './parts';
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 // A figure heading with its one-line description underneath, kept together however the heading wraps.
+// Honest one-line summary of the personalisation curves, e.g. "Ten minutes of a speaker’s own voice: a small gain for M01, none for F03".
+const personalHeadline = (series: {speaker: string; points: {minutes: number; wer: number}[]}[]): string => {
+	if (!series.length) return 'A speaker’s own voice';
+	const mins = series[0].points[series[0].points.length - 1].minutes;
+	const word = ({2: 'Two', 5: 'Five', 10: 'Ten'} as Record<number, string>)[mins] ?? String(mins);
+	const gain = (s: {speaker: string; points: {wer: number}[]}) => {
+		const d = Math.round((s.points[0].wer - s.points[s.points.length - 1].wer) * 100);
+		return d >= 10 ? `a clear gain for ${s.speaker}` : d >= 3 ? `a small gain for ${s.speaker}` : `none for ${s.speaker}`;
+	};
+	return `${word} minutes of a speaker’s own voice: ${series.map(gain).join(', ')}`;
+};
+
 const Head: React.FC<{children: React.ReactNode; sub: string; at: number}> = ({children, sub, at}) => (
 	<div style={{position: 'absolute', top: 70, left: 100, right: 100, display: 'flex', flexDirection: 'column', gap: 14}}>
-		<Rise at={at} style={{fontSize: 50, fontWeight: 800, lineHeight: 1.12, maxWidth: 1600}}>
+		<Rise at={at} style={{fontSize: 50, fontWeight: 800, lineHeight: 1.12, maxWidth: 1600, ...({textWrap: 'balance'} as React.CSSProperties)}}>
 			{children}
 		</Rise>
 		<Rise at={at + 10} style={{fontSize: 28, color: L.muted}}>
@@ -226,7 +238,7 @@ const Results: React.FC<SceneProps> = ({part}) => {
 		ours < Math.min(stock, large)
 			? 'Fewer words wrong than either stock model'
 			: ours < stock
-				? `Better than its base model; the ${BIGGER} larger model still leads`
+				? `Fewer errors than its base model, though the ranges overlap; the ${BIGGER} larger model still leads`
 				: 'Not yet better than stock Whisper';
 	const x = 560;
 	const w = 1100;
@@ -321,8 +333,8 @@ const Personal: React.FC<SceneProps> = ({part}) => {
 	const n = 6 + (part.total ?? 1);
 	return (
 		<Sheet>
-			<Rise at={4} style={{position: 'absolute', top: 90, left: 100, fontSize: 52, fontWeight: 800}}>
-				A few minutes of a person’s own voice
+			<Rise at={4} style={{position: 'absolute', top: 52, left: 100, right: 100, fontSize: 46, lineHeight: 1.12, fontWeight: 800, ...({textWrap: 'balance'} as React.CSSProperties)}}>
+				{personalHeadline(series)}
 			</Rise>
 			<svg style={{position: 'absolute', inset: 0}} width={1920} height={1080}>
 				{Array.from({length: Math.round(maxY / 0.1) + 1}, (_, i) => i * 0.1).map((t) => (

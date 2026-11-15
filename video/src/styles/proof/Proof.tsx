@@ -13,8 +13,8 @@ const P = {ground: '#f3f3f1', ink: '#0e0e0e', mid: '#6f6f6b', rule: '#cfcfca', f
 const M = 140; // page margin
 const clamp = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const SYSTEMS = [
-	{key: STOCK, label: 'Stock Whisper', color: P.ink},
-	{key: 'whisper-large-v3', label: `Whisper, ${BIGGER} larger`, color: P.ink},
+	{key: STOCK, label: `${STOCK} (stock)`, color: P.ink},
+	{key: 'whisper-large-v3', label: 'whisper-large-v3 (stock)', color: P.ink},
 	{key: 'Clear Voice', label: 'Clear Voice', color: P.accent},
 ];
 
@@ -29,7 +29,7 @@ const Claim: React.FC<{children: React.ReactNode; at?: number; size?: number; to
 	const f = useCurrentFrame();
 	const t = easeOut((f - at) / 16);
 	return (
-		<div style={{position: 'absolute', top, left: M, maxWidth: 1500, fontSize: size, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-0.03em', opacity: t, transform: `translateY(${(1 - t) * 18}px)`}}>
+		<div style={{position: 'absolute', top, left: M, maxWidth: 1500, fontSize: size, fontWeight: 800, lineHeight: 1.08, letterSpacing: '-0.03em', ...({textWrap: 'balance'} as React.CSSProperties), opacity: t, transform: `translateY(${(1 - t) * 18}px)`}}>
 			{children}
 		</div>
 	);
@@ -122,7 +122,7 @@ const Title: React.FC<SceneProps> = () => (
 			Clear Voice
 		</Claim>
 		<Claim at={14} size={112} top={300}>
-			Speech recognition that understands people with dysarthria.
+			Speech recognition fine-tuned for people with dysarthria.
 		</Claim>
 		<Proof at={40} style={{bottom: 120, left: M, fontSize: 26, color: P.mid}}>
 			Tested on voices and sentences it never heard. Veritas AI Hackathon, Languages track.
@@ -130,6 +130,12 @@ const Title: React.FC<SceneProps> = () => (
 		<Watermark color={P.accent} font={G} />
 	</Frame>
 );
+
+// For a one-word clip: how the two stock models did, in words.
+const stockVerdict = (clip: Clip): string => {
+	const wrong = [STOCK, 'whisper-large-v3'].filter((k) => clip.systems[k] && clip.systems[k].wer > 0).length;
+	return wrong === 2 ? 'Both stock Whisper models got the word wrong.' : wrong === 1 ? 'One of the two stock Whisper models got the word wrong.' : 'Both stock Whisper models got the word right.';
+};
 
 const Hook: React.FC<SceneProps> = ({part}) => {
 	const clip = part.clip!;
@@ -146,9 +152,9 @@ const Hook: React.FC<SceneProps> = ({part}) => {
 				<Wave clip={clip} playAt={part.playAt!} width={1640} />
 			</Proof>
 			<Claim at={end + 8} size={44} top={470}>
-				{n === 1 ? `Stock Whisper got the word ${right ? 'right' : 'wrong'}.` : `Stock Whisper got ${right} of ${n} words right.`}
+				{n === 1 ? stockVerdict(clip) : `Stock ${STOCK} got ${right} of ${n} words right.`}
 			</Claim>
-			<Transcripts clip={clip} at={end + 20} top={560} systems={[STOCK, 'Clear Voice']} />
+			<Transcripts clip={clip} at={end + 20} top={560} systems={[STOCK, 'whisper-large-v3', 'Clear Voice']} />
 		</Frame>
 	);
 };
@@ -160,7 +166,7 @@ const Problem: React.FC<SceneProps> = () => {
 		<Frame>
 			<Claim size={88}>Dictation was built on typical voices.</Claim>
 			<Proof at={24} style={{top: 360, left: M, width: 1300, fontSize: 34, lineHeight: 1.45, color: P.mid}}>
-				Dysarthria makes speech slow, slurred or quiet. It comes with cerebral palsy, ALS, stroke and Parkinson’s. Here is stock Whisper on the same sentences:
+				Dysarthria makes speech slow, slurred or quiet. It can come with cerebral palsy, ALS, a stroke or Parkinson’s. Stock {STOCK}, typical voices against voices with dysarthria:
 			</Proof>
 			<Bars
 				at={60}
@@ -231,6 +237,9 @@ const How: React.FC<SceneProps> = () => {
 				<div style={{color: P.accent}}>
 					<b>Blue:</b> the test.
 				</div>
+				<div style={{color: P.mid}}>
+					<b>Grey:</b> not used, or the 10% of sentences kept for choosing when to stop training.
+				</div>
 				<div style={{marginTop: 22, color: P.mid}}>No overlap in either direction. Then the groups swap.</div>
 			</Proof>
 		</Frame>
@@ -246,7 +255,7 @@ const Results: React.FC<SceneProps> = () => {
 		ours < Math.min(stock, large)
 			? `${Math.round((1 - ours / stock) * 100)}% fewer words wrong than stock Whisper.`
 			: ours < stock
-				? 'Better than the model it started from. Not yet better than the largest one.'
+				? 'Fewer errors than the model it started from. Not as few as the largest.'
 				: 'Not yet better than stock Whisper.';
 	return (
 		<Frame>
@@ -257,7 +266,7 @@ const Results: React.FC<SceneProps> = () => {
 				rows={bars.map((b) => ({label: SYSTEMS.find((s) => s.key === b.name)?.label ?? b.name, v: b.value, color: b.name === 'Clear Voice' ? P.accent : P.ink}))}
 			/>
 			<Proof at={90} style={{bottom: 110, left: M, fontSize: 22, color: P.mid}}>
-				Share of words wrong on sentences, new speakers with dysarthria saying new sentences. 95% intervals are in the write-up.
+				Share of words wrong on sentences, new speakers with dysarthria saying new sentences. With 8 test speakers, the 95% intervals overlap (see the write-up).
 			</Proof>
 			{wordCer('Clear Voice') !== undefined && wordCer(STOCK) !== undefined ? (
 				<Proof at={70} style={{bottom: 170, left: M, fontSize: 34, fontWeight: 500}}>
@@ -328,6 +337,11 @@ const Personal: React.FC<SceneProps> = () => {
 			<Proof at={120} style={{top: 470, left: x0 + W + 80, width: 360, fontSize: 28, lineHeight: 1.45, color: P.mid}}>
 				Speaker {s.speaker}, {s.severity} dysarthria, tested on sentences that were not in the added recordings.
 			</Proof>
+			{data.personalisation.slice(1).map((o) => (
+				<Proof key={o.speaker} at={150} style={{bottom: 110, left: M, fontSize: 34, fontWeight: 500}}>
+					Speaker {o.speaker}, {o.severity}: {pct(o.points[0].wer)} before, {pct(o.points[o.points.length - 1].wer)} after {o.points[o.points.length - 1].minutes} minutes.
+				</Proof>
+			))}
 		</Frame>
 	);
 };
