@@ -18,9 +18,12 @@ if IN_COLAB:
     os.chdir("/content/clear-voice")
     subprocess.run(["git", "pull", "-q"], check=False)
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements.txt"], check=True)
-    from google.colab import drive, userdata
-    drive.mount("/content/drive")
-    WORK = "/content/drive/MyDrive/clearvoice"
+    from google.colab import userdata
+    WORK = os.environ.get("CLEARVOICE_WORK")  # a local folder instead of Google Drive, if set
+    if not WORK:
+        from google.colab import drive
+        drive.mount("/content/drive")
+        WORK = "/content/drive/MyDrive/clearvoice"
     try:
         os.environ["HF_TOKEN"] = userdata.get("HF_TOKEN")
     except Exception:

@@ -48,6 +48,34 @@ def test_real_runs_write_to_the_main_folder(tmp_path, monkeypatch):
     assert not ns["WORK"].endswith("/smoke")
 
 
+def test_colab_can_run_without_google_drive(tmp_path, monkeypatch):
+    """CLEARVOICE_WORK points a Colab run at a local folder, e.g. when nobody is there to approve Drive access."""
+    import os
+    import subprocess
+    import sys
+    import types
+
+    def no_drive(*args, **kwargs):
+        raise AssertionError("mounted Google Drive")
+
+    def no_secret(key):
+        raise KeyError(key)
+
+    colab = types.ModuleType("google.colab")
+    colab.drive, colab.userdata = types.SimpleNamespace(mount=no_drive), types.SimpleNamespace(get=no_secret)
+    google = types.ModuleType("google")
+    google.colab = colab
+    monkeypatch.setitem(sys.modules, "google", google)
+    monkeypatch.setitem(sys.modules, "google.colab", colab)
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: None)
+    monkeypatch.setattr(os, "chdir", lambda path: None)
+    monkeypatch.setenv("CLEARVOICE_WORK", str(tmp_path / "local"))
+    ns = {}
+    exec(_setup_code(), ns)
+    assert ns["WORK"] == str(tmp_path / "local")
+    assert (tmp_path / "local" / "results").is_dir()
+
+
 def _finetune_code():
     nb = nbformat.read(NB_DIR / "03_finetune.ipynb", as_version=4)
     return [c.source for c in nb.cells if c.cell_type == "code"]
