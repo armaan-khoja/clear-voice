@@ -73,7 +73,7 @@ Data:
 Models: OpenAI Whisper (Radford et al., 2023, "Robust Speech Recognition via Large-Scale Weak Supervision"): `openai/whisper-small`, `openai/whisper-large-v3`, `openai/whisper-tiny` (tests only).
 
 Related work:
-- arXiv 2411.00980, the NP-TORGO split with no shared prompts. TODO: confirm title and authors.
+- Hui, M., Zhang, J. and Mohan, A. (2024). Enhancing AAC Software for Dysarthric Speakers in e-Health Settings: An Evaluation Using TORGO. arXiv:2411.00980. They found TORGO's shared prompts inflate results and built NP-TORGO, a split with no prompt overlap; our strict split follows the same idea.
 - Google's Project Euphonia.
 - The Speech Accessibility Project (University of Illinois).
 - A TU Delft thesis on fine-tuning Whisper with LoRA on TORGO.
