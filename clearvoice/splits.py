@@ -105,21 +105,39 @@ def random_splits(meta: pd.DataFrame, seed: int = SEED) -> dict:
     return {"train": take(idx[n_test + n_val:]), "val": take(idx[n_test:n_test + n_val]), "test": take(idx[:n_test])}
 
 
-def personal_subsets(meta: pd.DataFrame, prompt_split: dict, speaker: str,
-                     minutes=(2, 5, 10), seed: int = SEED) -> dict:
-    """Nested sets of one speaker's own training-prompt clips reaching k minutes, or 'capped' if too few."""
+def _personal_pool(meta: pd.DataFrame, prompt_split: dict, speaker: str, seed: int = SEED) -> pd.DataFrame:
+    """One speaker's training-prompt clips (one copy per utterance) in a fixed random order."""
     meta = usable(meta)
     mine = meta[(meta["speaker"] == speaker) & (meta["text_norm"].map(prompt_split) == "train")]
     pool = pick_eval_copies(mine)
-    pool = pool.iloc[np.random.default_rng(seed).permutation(len(pool))].reset_index(drop=True)
+    return pool.iloc[np.random.default_rng(seed).permutation(len(pool))].reset_index(drop=True)
+
+
+def _first_minutes(pool: pd.DataFrame, k: float) -> int:
+    """How many clips from the start of the pool reach k minutes (len(pool) + 1 when it never does)."""
     cum = pool["duration"].cumsum().to_numpy()
+    if len(cum) == 0 or cum[-1] < k * 60:
+        return len(pool) + 1
+    return int(np.searchsorted(cum, k * 60)) + 1
+
+
+def personal_subsets(meta: pd.DataFrame, prompt_split: dict, speaker: str,
+                     minutes=(2, 5, 10), seed: int = SEED) -> dict:
+    """Nested sets of one speaker's own training-prompt clips reaching k minutes, or 'capped' if too few."""
+    pool = _personal_pool(meta, prompt_split, speaker, seed)
     out = {}
     for k in minutes:
-        if len(cum) == 0 or cum[-1] < k * 60:
-            out[k] = "capped"
-        else:
-            out[k] = pool.iloc[: int(np.searchsorted(cum, k * 60)) + 1].copy()
+        n = _first_minutes(pool, k)
+        out[k] = "capped" if n > len(pool) else pool.iloc[:n].copy()
     return out
+
+
+def personal_validation(meta: pd.DataFrame, prompt_split: dict, speaker: str,
+                        after_minutes: float = 10, seed: int = SEED) -> pd.DataFrame:
+    """The speaker's training-prompt clips left over after the largest personal set: used to tune the
+    personalisation recipe, so choosing it never looks at the test sentences."""
+    pool = _personal_pool(meta, prompt_split, speaker, seed)
+    return pool.iloc[min(_first_minutes(pool, after_minutes), len(pool)):].copy()
 
 
 def write_splits(splits: dict, out_dir, name: str) -> None:

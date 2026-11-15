@@ -147,3 +147,17 @@ def test_near_duplicate_prompts_always_share_a_split():
     for seed in range(20):
         ps = assign_prompt_splits(meta, seed=seed)
         assert ps["my grandfather likes walking"] == ps["my grandfather liked walking"], seed
+
+
+def test_personal_validation_is_the_rest_of_the_speakers_training_prompt_pool():
+    from clearvoice.splits import personal_validation
+
+    meta = make_meta()
+    ps = assign_prompt_splits(meta)
+    subs = personal_subsets(meta, ps, "F01", minutes=(2,))
+    val = personal_validation(meta, ps, "F01", after_minutes=2)
+    assert len(val) > 0
+    assert set(val["row_id"]).isdisjoint(subs[2]["row_id"])          # never the adaptation clips
+    assert set(val["speaker"]) == {"F01"}
+    assert {ps[t] for t in val["text_norm"]} == {"train"}             # never a test or validation prompt
+    assert val["utt_key"].is_unique
