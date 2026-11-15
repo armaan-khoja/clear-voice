@@ -15,13 +15,12 @@ First submission by 8 PM ET, final by 10 PM ET. Submissions close at 11:59 PM ET
 
 ## Only you can do these
 
-1. **Keep the Mac plugged in** and the Colab tab open until about 4:30 PM. The battery died overnight and stopped the last run.
-2. **Team names.** Tell Claude, and they go into the README and the closing shot.
-3. **Pick a look:** Exam, Lab or Proof.
-4. **Record the narration.** Read `video/SCRIPT.md` on a phone in a quiet room. Save it as `video/public/voiceover.wav`, then tell Claude to re-render. The music drops under your voice automatically.
-5. **Optional, for the best opening clip:** when macOS asks whether Claude can access your Downloads folder, allow it. Claude can then read the full per-clip predictions and pick the opening example by the documented rule. Without it, the opening comes from the random sample by a second documented rule.
-6. **Optional, the live demo:** the Gradio app in `app/` is built for a Hugging Face Space. Publishing it needs your Hugging Face token in Colab's Secrets (`HF_TOKEN`). Claude never handles the token.
+1. **Team names.** Tell Claude, and they go into the README and the closing shot.
+2. **Pick a look:** Exam, Lab or Proof.
+3. **Record the narration.** Read `video/SCRIPT.md` on a phone in a quiet room. Save it as `video/public/voiceover.wav`, then tell Claude to re-render. The music drops under your voice automatically.
+4. **Optional, for the best opening clip:** when macOS asks whether Claude can access your Downloads folder, allow it. Claude can then read the full per-clip predictions and pick the opening example by the documented rule. Without it, the opening comes from the random sample by a second documented rule.
+5. **Optional, the live demo:** the Gradio app in `app/` is built for a Hugging Face Space. Publishing it needs your Hugging Face token in Colab's Secrets (`HF_TOKEN`). Claude never handles the token.
 
-## Running now
+## Turbo (done)
 
-Fine-tuning whisper-large-v3-turbo on both groups of speakers, on Colab's own disk, finishing around 4:20 PM. If it beats whisper-medium on validation, it becomes Clear Voice: the tables, README and videos are rebuilt from it. If not, it is listed as a candidate.
+Fine-tuned whisper-large-v3-turbo got 17.0% of validation words wrong, behind whisper-medium's 15.1%, so Clear Voice stays the fine-tuned whisper-medium. Turbo is listed in the README as a candidate. Nothing is running on Colab any more.

@@ -22,7 +22,7 @@ TORGO (we used the Hugging Face mirror `abnerh/TORGO-database`) has 16,552 recor
 
 Because everyone reads the same prompts, a random split lets a model memorise sentences it will later be tested on. Earlier work found the same problem in TORGO (the NP-TORGO split). We split twice. The prompts are divided 70% training, 10% validation and 20% test, separately for words and sentences, and near-identical prompts such as "as I choose" and "as I chose" are kept on the same side. The 8 dysarthric speakers are divided into two groups of four, each with two severe, one moderate and one mild speaker (A: F01, M01, F03, M03; B: M02, M04, M05, F04). We train one model per group and test it on the other group's speakers, using only test prompts. So every number in the headline comes from a person the model never heard saying a sentence it never saw. The checkpoint is chosen on validation prompts, so choosing it never rewards memorisation either.
 
-We fine-tuned two sizes of OpenAI's Whisper, whisper-small (244 million parameters) and whisper-medium (769 million), with learning rate 1e-5 and an effective batch of 16 on one L4 GPU, scoring the validation sentences every 250 steps and keeping the best checkpoint. We chose between them on validation alone: averaged over both groups, fine-tuned whisper-medium got 15.1% of validation words wrong and fine-tuned whisper-small 17.2%, so Clear Voice is the fine-tuned whisper-medium. We compare it with the stock model it started from, stock whisper-small, and stock whisper-large-v3, which is twice the size of whisper-medium.
+We fine-tuned three versions of OpenAI's Whisper, whisper-small (244 million parameters), whisper-medium (769 million) and whisper-large-v3-turbo (809 million), with learning rate 1e-5 and an effective batch of 16 on one L4 GPU, scoring the validation sentences every 250 steps and keeping the best checkpoint. We chose between them on validation alone: averaged over both groups, fine-tuned whisper-medium got 15.1% of validation words wrong, large-v3-turbo 17.0% and whisper-small 17.2%, so Clear Voice is the fine-tuned whisper-medium. We compare it with the stock model it started from, stock whisper-small, and stock whisper-large-v3, which is twice the size of whisper-medium.
 
 We normalise case, punctuation and numbers on both sides before scoring. Sentences are scored by word error rate and single words by character error rate. The 95% intervals come from resampling whole speakers, because with eight speakers the variation between people matters more than the variation between clips. We also report the median clip, because Whisper sometimes produces a long run of invented words for a single short recording, and one such clip can move a total a long way.
 
@@ -51,6 +51,9 @@ Every model we tried, on the same test:
 | Stock whisper-large-v3 | | 22.1% | 57.4% |
 | Fine-tuned whisper-small | 17.2% | 31.8% | 41.0% |
 | Fine-tuned whisper-medium (Clear Voice) | 15.1% | 29.2% | 39.3% |
+| Fine-tuned whisper-large-v3-turbo | 17.0% | 41.1% | 41.0% |
+
+Fine-tuned large-v3-turbo shows why the choice is made on validation. It scored behind whisper-medium there, so it was never in the running, and on the test it was worse than the stock model it started from: 41.1% of sentence words wrong against 24.8%, with its typical sentence twice as bad (median 28.6% against 14.3%). In one recording it got stuck repeating "a different way for" until it hit the length limit. Like the others, it did help on single words.
 
 The same Clear Voice model looks better on easier tests:
 
