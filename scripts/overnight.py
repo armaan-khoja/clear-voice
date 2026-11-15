@@ -6,6 +6,7 @@ In a Colab cell, after notebook 3 has run once:
     %run scripts/overnight.py --round2     (round 2: tuned personalisation, large-v3-turbo)
     %run scripts/overnight.py --round3     (round 3: personalisation tuned on new sentences)
     %run scripts/overnight.py --round4     (round 4: large-v3-turbo again, then the final tables rebuilt)
+    %run scripts/overnight.py --round5     (round 5: stock medium and turbo as baselines, final tables rebuilt)
 
 Each step is skipped if its output files already exist, so rerunning after a disconnect resumes where it stopped.
 Progress is appended to MyDrive/clearvoice/results/overnight_log.txt.
@@ -76,6 +77,16 @@ def plan_round4() -> list:
     return [
         Step("turbo, fold A", nb("03_finetune"), ["results/val_ft_holdA_large-v3-turbo.csv"], _finetune("A", "large-v3-turbo")),
         Step("turbo, fold B", nb("03_finetune"), ["results/val_ft_holdB_large-v3-turbo.csv"], _finetune("B", "large-v3-turbo")),
+        Step("final tables", "scripts/final_report.py", ["results/final_summary.md"], rerun=True),
+    ]
+
+
+def plan_round5() -> list:
+    """Stock whisper-medium and large-v3-turbo on the strict test, so Clear Voice is compared with the model it
+    started from, then the final tables rebuilt."""
+    return [
+        Step("stock medium and turbo", "scripts/zero_shot_extra.py",
+             ["results/preds_zeroshot_whisper-medium.csv", "results/preds_zeroshot_whisper-large-v3-turbo.csv"]),
         Step("final tables", "scripts/final_report.py", ["results/final_summary.md"], rerun=True),
     ]
 
@@ -161,6 +172,6 @@ if __name__ == "__main__":
 
     from IPython import get_ipython
 
-    rounds = {"--round2": plan_round2, "--round3": plan_round3, "--round4": plan_round4}
+    rounds = {"--round2": plan_round2, "--round3": plan_round3, "--round4": plan_round4, "--round5": plan_round5}
     chosen = [rounds[a] for a in sys.argv if a in rounds]
     main(get_ipython().user_ns["WORK"], chosen[0]() if chosen else None)

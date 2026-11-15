@@ -3,7 +3,8 @@
 Notebook 5 built the tables from whisper-small. After the upgrade experiments, Clear Voice is whichever base model
 (small, medium, large-v3-turbo) has the lowest mean validation WER across both folds (report.choose_architecture).
 This script rebuilds the headline, leakage and demo-clip tables for that model, and lists every candidate on the
-strict test so nothing is hidden. Writes results/final_*.csv and results/final_summary.md.
+strict test so nothing is hidden. When scripts/zero_shot_extra.py has run, the stock version of the chosen base model
+(the model Clear Voice started from) is a baseline too. Writes results/final_*.csv and results/final_summary.md.
 
 In Colab: %run scripts/final_report.py   (or locally: python scripts/final_report.py <results dir> <meta.pkl>)
 """
@@ -11,6 +12,15 @@ import os
 import sys
 
 import pandas as pd
+
+
+def stock_systems(results_dir: str, arch: str) -> list:
+    """Stock baselines: whisper-small, the base Clear Voice started from (if its predictions exist), whisper-large-v3."""
+    names = ["whisper-small", "whisper-large-v3"]
+    own = f"whisper-{arch}"
+    if own not in names and os.path.exists(f"{results_dir}/preds_zeroshot_{own}.csv"):
+        names.insert(1, own)
+    return names
 
 
 def main(work: str, meta_path: str | None = None) -> None:
@@ -34,7 +44,7 @@ def main(work: str, meta_path: str | None = None) -> None:
         return df
 
     chosen = ft(suffix)
-    zs = align_folds({s: read_preds(f"{R}/preds_zeroshot_{s}.csv") for s in ["whisper-small", "whisper-large-v3"]}, chosen)
+    zs = align_folds({s: read_preds(f"{R}/preds_zeroshot_{s}.csv") for s in stock_systems(R, arch)}, chosen)
     head = report.headline({**zs, "Clear Voice": chosen})
     lk = report.leakage(chosen)
 
@@ -54,6 +64,9 @@ def main(work: str, meta_path: str | None = None) -> None:
     demo = demo.merge(meta[["row_id", "file_idx", "row_in_file"]], on="row_id", how="left")
 
     lib = pd.read_csv(f"{R}/librispeech_zeroshot.csv")
+    if os.path.exists(f"{R}/librispeech_zeroshot_extra.csv"):
+        extra = pd.read_csv(f"{R}/librispeech_zeroshot_extra.csv")
+        lib = pd.concat([lib, extra[extra["system"].isin(list(zs))]], ignore_index=True)
     for f in ["A", "B"]:
         p = f"{R}/librispeech_ft_hold{f}{suffix}.csv"
         if os.path.exists(p):
