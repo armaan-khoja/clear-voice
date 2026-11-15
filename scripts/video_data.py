@@ -86,6 +86,19 @@ def opening_from_draw(draw: pd.DataFrame, stock: str, exclude=()) -> pd.Series:
     return d.sort_values(["gain", "exact"], ascending=False, kind="stable").iloc[0]
 
 
+def opening_by_rule(ft: pd.DataFrame, stock_hyp: pd.Series, dur: pd.Series, exclude=()) -> pd.Series:
+    """Among unseen severe or moderate sentences of 2 to 5 seconds, the one at the 75th percentile of improvement
+    over the stock model (a good example, not the best one). `stock_hyp` maps row_id to the stock transcript."""
+    strict = ft[(ft["part"] == "test_strict") & ft["is_dysarthric"].astype(bool) & (ft["prompt_type"] == "sentence")
+                & ft["severity"].isin(["severe", "moderate"])].copy()
+    strict = strict[strict["row_id"].map(dur).between(2, 5) & ~strict["row_id"].isin(list(exclude))]
+    strict["gain"] = [tokens(r, stock_hyp.get(rid, ""))[1] - tokens(r, hyp)[1]
+                      for rid, r, hyp in zip(strict["row_id"], strict["ref"], strict["hyp"])]
+    good = strict[strict["gain"] > 0].sort_values("gain", kind="stable")
+    row = good.iloc[int(0.75 * (len(good) - 1))] if len(good) else strict.iloc[0]
+    return row.rename({"hyp": "Clear Voice"})
+
+
 def clip_entry(row: pd.Series, hyps: dict, meta: pd.DataFrame, audio: dict, systems: list) -> dict:
     import soundfile as sf
     from video_spectrogram import spectrogram_png
@@ -163,17 +176,9 @@ def main() -> None:
 
     # Opening: fixed rule, see the module docstring.
     if ft is not None and stock in zs:
-        strict = ft[(ft["part"] == "test_strict") & ft["is_dysarthric"].astype(bool) & (ft["prompt_type"] == "sentence")
-                    & ft["severity"].isin(["severe", "moderate"])].copy()
         picked = [int(g.iloc[0]["row_id"]) for sev in ["mild", "moderate", "severe"]
                   for g in [sentences[sentences["severity"] == sev]] if len(g)]
-        strict = strict[strict["row_id"].map(dur).between(2, 5) & ~strict["row_id"].isin(picked)]
-        stock_hyp = zs[stock].set_index("row_id")["hyp"]
-        strict["gain"] = [tokens(r, stock_hyp.get(rid, ""))[1] - tokens(r, hyp)[1]
-                          for rid, r, hyp in zip(strict["row_id"], strict["ref"], strict["hyp"])]
-        good = strict[strict["gain"] > 0].sort_values("gain", kind="stable")
-        opening_row = good.iloc[int(0.75 * (len(good) - 1))] if len(good) else strict.iloc[0]
-        opening_row = opening_row.rename({"hyp": "Clear Voice"})
+        opening_row = opening_by_rule(ft, zs[stock].set_index("row_id")["hyp"], dur, exclude=picked)
         rule = "75th percentile of improvement among unseen severe or moderate sentences"
     else:
         opening_row = opening_from_draw(draw, stock)

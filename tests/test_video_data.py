@@ -26,3 +26,17 @@ def test_opening_from_the_random_draw_takes_the_biggest_gain_and_prefers_an_exac
     ])
     assert int(opening_from_draw(draw, "whisper-medium")["row_id"]) == 3  # mild clips are not eligible
     assert int(opening_from_draw(draw, "whisper-medium", exclude=[3])["row_id"]) == 2
+
+
+def test_opening_by_rule_is_the_75th_percentile_improvement_among_moderate_and_severe_sentences():
+    from scripts.video_data import opening_by_rule
+
+    refs = ["the cat sat down"] * 5
+    ours = ["the cat sat down"] * 5
+    stock = {10: "the", 11: "the cat", 12: "the cat sat", 13: "a cat sat down", 14: "the cat sat down"}
+    ft = pd.DataFrame({"row_id": [10, 11, 12, 13, 14], "ref": refs, "hyp": ours, "part": "test_strict",
+                       "is_dysarthric": True, "prompt_type": "sentence", "severity": "severe"})
+    dur = pd.Series(3.0, index=[10, 11, 12, 13, 14])
+    # gains 0.75, 0.5, 0.25, 0.25, 0 -> positive gains sorted 0.25, 0.25, 0.5, 0.75 -> 75th percentile index 2
+    row = opening_by_rule(ft, pd.Series(stock), dur)
+    assert int(row["row_id"]) == 11 and row["Clear Voice"] == "the cat sat down"
