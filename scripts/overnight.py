@@ -5,6 +5,7 @@ In a Colab cell, after notebook 3 has run once:
     %run scripts/overnight.py              (round 1: fold B, baselines, personalisation, results, medium)
     %run scripts/overnight.py --round2     (round 2: tuned personalisation, large-v3-turbo)
     %run scripts/overnight.py --round3     (round 3: personalisation tuned on new sentences)
+    %run scripts/overnight.py --round4     (round 4: large-v3-turbo again, then the final tables rebuilt)
 
 Each step is skipped if its output files already exist, so rerunning after a disconnect resumes where it stopped.
 Progress is appended to MyDrive/clearvoice/results/overnight_log.txt.
@@ -22,6 +23,11 @@ class Step:
     notebook: str
     outputs: list
     env: dict = field(default_factory=dict)
+    rerun: bool = False  # run even if the outputs exist (tables that must be rebuilt from newer results)
+
+
+def should_skip(step: Step, work: str) -> bool:
+    return not step.rerun and all(os.path.exists(f"{work}/{o}") for o in step.outputs)
 
 
 def _finetune(fold: str, base: str) -> dict:
@@ -63,11 +69,40 @@ def plan_round3() -> list:
     ]
 
 
+def plan_round4() -> list:
+    """large-v3-turbo again (round 2 loaded it in float16 and crashed at the first evaluation), then the final
+    tables rebuilt so the model is chosen on validation among small, medium and turbo."""
+    nb = "notebooks/{}.ipynb".format
+    return [
+        Step("turbo, fold A", nb("03_finetune"), ["results/val_ft_holdA_large-v3-turbo.csv"], _finetune("A", "large-v3-turbo")),
+        Step("turbo, fold B", nb("03_finetune"), ["results/val_ft_holdB_large-v3-turbo.csv"], _finetune("B", "large-v3-turbo")),
+        Step("final tables", "scripts/final_report.py", ["results/final_summary.md"], rerun=True),
+    ]
+
+
 def validation_files(work: str) -> list:
     """Model names that have validation predictions, e.g. ['holdA', 'holdA_medium']."""
     import glob
 
     return [Path(p).name[len("val_ft_"):-len(".csv")] for p in glob.glob(f"{work}/results/val_ft_*.csv")]
+
+
+def write_model_choice(work: str):
+    """Compare every model with validation predictions and write results/model_choice.csv (None if there are none)."""
+    import importlib
+
+    import pandas as pd
+
+    from clearvoice import report
+
+    importlib.reload(report)  # this session imported the module before compare_validation existed
+    val = {m: pd.read_csv(f"{work}/results/val_ft_{m}.csv", keep_default_na=False, na_values=[])
+           for m in sorted(validation_files(work))}
+    if not val:
+        return None
+    table = report.compare_validation(val)
+    table.to_csv(f"{work}/results/model_choice.csv", index=False)
+    return table
 
 
 def _free_gpu(ip) -> None:
@@ -84,7 +119,6 @@ def _free_gpu(ip) -> None:
 
 
 def main(work: str, steps: list | None = None) -> None:
-    import pandas as pd
     from IPython import get_ipython
 
     ip = get_ipython()
@@ -100,7 +134,7 @@ def main(work: str, steps: list | None = None) -> None:
         return all(os.path.exists(f"{work}/{o}") for o in step.outputs)
 
     for step in steps or plan():
-        if finished(step):
+        if should_skip(step, work):
             log(f"skip  {step.label} (already done)")
             continue
         for k in [k for k in os.environ if k.startswith("CV_")]:
@@ -114,17 +148,10 @@ def main(work: str, steps: list | None = None) -> None:
             log(f"error {step.label}: {type(e).__name__}: {e}")
         _free_gpu(ip)
         log(f"{'done ' if finished(step) else 'FAILED'} {step.label} ({(time.time() - start) / 60:.0f} min)")
+        write_model_choice(work)  # a later step (the final tables) reads it
 
-    import importlib
-
-    from clearvoice import report
-
-    importlib.reload(report)  # this session imported the module before compare_validation existed
-    val = {m: pd.read_csv(f"{work}/results/val_ft_{m}.csv", keep_default_na=False, na_values=[])
-           for m in sorted(validation_files(work))}
-    if val:
-        table = report.compare_validation(val)
-        table.to_csv(f"{work}/results/model_choice.csv", index=False)
+    table = write_model_choice(work)
+    if table is not None:
         log("validation comparison:\n" + table.to_string(index=False))
     log("overnight run finished")
 
@@ -134,6 +161,6 @@ if __name__ == "__main__":
 
     from IPython import get_ipython
 
-    rounds = {"--round2": plan_round2, "--round3": plan_round3}
+    rounds = {"--round2": plan_round2, "--round3": plan_round3, "--round4": plan_round4}
     chosen = [rounds[a] for a in sys.argv if a in rounds]
     main(get_ipython().user_ns["WORK"], chosen[0]() if chosen else None)

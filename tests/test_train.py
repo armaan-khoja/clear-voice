@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 import pandas as pd
 import pytest
 
@@ -63,3 +64,15 @@ def test_finetune_with_gradient_checkpointing_and_accumulation(tmp_path):
     out = finetune(cfg, rows.iloc[:3], rows.iloc[3:], audio, str(tmp_path / "run"))
     model, processor = load_model(out)
     assert isinstance(transcribe(model, processor, [audio[0]], batch_size=1)[0], str)
+
+
+def test_finetune_saves_the_kept_model_in_half_precision(tmp_path):
+    """The kept model is only used for inference, which runs in float16; half the size on a 15 GB Google Drive."""
+    from safetensors import safe_open
+
+    rows, audio = _data()
+    cfg = TrainConfig(base_model="openai/whisper-tiny", max_steps=1, eval=False, batch_size=2, num_workers=0)
+    out = finetune(cfg, rows, None, audio, str(tmp_path / "run"))
+    with safe_open(f"{out}/model.safetensors", "pt") as f:
+        dtypes = {f.get_tensor(k).dtype for k in f.keys()}
+    assert dtypes == {torch.float16}

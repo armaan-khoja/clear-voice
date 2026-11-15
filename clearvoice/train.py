@@ -73,13 +73,18 @@ class _Collator:
         return {"input_features": feats, "labels": ids}
 
 
+def load_base_model(name_or_path: str) -> WhisperForConditionalGeneration:
+    """Float32 master weights for training, whatever dtype the checkpoint was saved in (large-v3-turbo is float16)."""
+    return WhisperForConditionalGeneration.from_pretrained(name_or_path, dtype=torch.float32)
+
+
 def finetune(cfg: TrainConfig, train_rows: pd.DataFrame, val_rows: pd.DataFrame | None,
              audio: dict, output_dir: str) -> str:
     """Fine-tune `cfg.base_model` and return the folder holding the kept model and its processor."""
     out = Path(output_dir)
     processor = WhisperProcessor.from_pretrained(cfg.base_model)
     processor.tokenizer.set_prefix_tokens(language="english", task="transcribe")
-    model = WhisperForConditionalGeneration.from_pretrained(cfg.base_model)  # float32 master weights
+    model = load_base_model(cfg.base_model)
     model.generation_config.language, model.generation_config.task = "en", "transcribe"
     model.generation_config.forced_decoder_ids = None
     if cfg.gradient_checkpointing:
@@ -139,6 +144,7 @@ def finetune(cfg: TrainConfig, train_rows: pd.DataFrame, val_rows: pd.DataFrame 
     )
     trainer.train()
     final = out / "best"
+    trainer.model.to(torch.float16)  # inference runs in float16; halves the size on Google Drive
     trainer.save_model(str(final))
     processor.save_pretrained(str(final))
     shutil.rmtree(out / "checkpoints", ignore_errors=True)  # each is ~1 GB on Google Drive
