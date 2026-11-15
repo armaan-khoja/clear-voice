@@ -9,7 +9,7 @@ In the Colab session that ran notebook 3 (Drive already connected):
     !git -C /content/clear-voice pull -q
     %run scripts/personal_tune.py
 
-Writes results/personal_tuning.csv (validation score per recipe) and results/personalise_tuned.csv (the new curve).
+Writes results/personal_tuning_v2.csv (validation score per recipe) and results/personalise_tuned_v2.csv (the curve).
 """
 import shutil
 import tempfile
@@ -18,10 +18,15 @@ import pandas as pd
 
 RECIPES = {
     "original (lr 1e-5, 5 epochs)": dict(learning_rate=1e-5, num_train_epochs=5),
+    "lr 1e-5, 15 epochs": dict(learning_rate=1e-5, num_train_epochs=15),
+    "lr 2e-5, 10 epochs": dict(learning_rate=2e-5, num_train_epochs=10),
     "lr 5e-5, 10 epochs": dict(learning_rate=5e-5, num_train_epochs=10),
-    "lr 1e-4, 10 epochs": dict(learning_rate=1e-4, num_train_epochs=10),
-    "lr 5e-5, 20 epochs": dict(learning_rate=5e-5, num_train_epochs=20),
 }
+# Tune on the speaker's clips of validation prompts: new sentences that no model trains on and that are not in
+# the test. (A first run used leftover training-prompt clips; the base model already knew those sentences, so
+# that choice rewarded leaving the model alone. Its results are kept in personal_tuning.csv.)
+VALIDATION_PROMPTS = "val"
+OUT_SUFFIX = "_v2"
 SPEAKERS = {"M01": "A", "F03": "A"}  # both held out by the fold-A model
 MINUTES = [2, 5, 10]
 
@@ -68,14 +73,14 @@ def main(work: str, splits: str = "splits", limit: int | None = None, base_model
     for spk, fold in SPEAKERS.items():
         base = base_model or f"{work}/models/hold{fold}/best"
         adapt = rows_for(meta, splits, f"personal_{spk}", "10min").head(limit or None)
-        val = splits_mod.personal_validation(meta, ps, spk, after_minutes=10)
+        val = splits_mod.personal_validation(meta, ps, spk, after_minutes=10, prompts=VALIDATION_PROMPTS)
         val = meta.set_index("row_id").loc[val["row_id"]].reset_index().head(limit or None)
         audio = load_audio(parquets, meta, list(adapt.row_id) + list(val.row_id))
         for recipe in RECIPES:
             s = train_and_score(base, adapt, val, audio, recipe, "personal_val", fold)
             scores.append({"recipe": recipe, "speaker": spk, "wer": s["wer"], "cer": s["cer"], "n_clips": s["n"]})
             print(f"{spk} {recipe}: validation WER {s['wer']:.3f} on {s['n']} clips", flush=True)
-    pd.DataFrame(scores).to_csv(f"{work}/results/personal_tuning.csv", index=False)
+    pd.DataFrame(scores).to_csv(f"{work}/results/personal_tuning{OUT_SUFFIX}.csv", index=False)
     best = choose(scores)
     print("chosen recipe (by validation):", best, flush=True)
 
@@ -93,7 +98,7 @@ def main(work: str, splits: str = "splits", limit: int | None = None, base_model
             s = train_and_score(base, adapt, test, audio, best, "test_strict", fold)
             curve.append({"speaker": spk, "severity": test.severity.iloc[0], "minutes": k, "wer": s["wer"], "cer": s["cer"], "n_clips": s["n"], "recipe": best})
             print(f"{spk} {k} min: test WER {s['wer']:.3f}", flush=True)
-    pd.DataFrame(curve).to_csv(f"{work}/results/personalise_tuned.csv", index=False)
+    pd.DataFrame(curve).to_csv(f"{work}/results/personalise_tuned{OUT_SUFFIX}.csv", index=False)
     print("personal tuning finished", flush=True)
 
 

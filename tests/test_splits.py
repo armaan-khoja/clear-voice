@@ -161,3 +161,14 @@ def test_personal_validation_is_the_rest_of_the_speakers_training_prompt_pool():
     assert set(val["speaker"]) == {"F01"}
     assert {ps[t] for t in val["text_norm"]} == {"train"}             # never a test or validation prompt
     assert val["utt_key"].is_unique
+
+
+def test_personal_validation_can_use_the_validation_prompts_instead():
+    from clearvoice.splits import personal_validation
+
+    meta = make_meta()
+    ps = assign_prompt_splits(meta)
+    val = personal_validation(meta, ps, "F01", prompts="val")
+    assert len(val) > 0 and set(val["speaker"]) == {"F01"}
+    assert {ps[t] for t in val["text_norm"]} == {"val"}  # sentences no model trains on, and not test sentences
+    assert val["utt_key"].is_unique

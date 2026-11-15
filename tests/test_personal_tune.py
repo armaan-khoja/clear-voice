@@ -11,3 +11,9 @@ def test_choose_picks_the_recipe_with_the_lowest_mean_validation_wer():
 
 def test_recipes_include_the_original_one_so_it_can_win():
     assert any(r["learning_rate"] == 1e-5 and r["num_train_epochs"] == 5 for r in RECIPES.values())
+
+
+def test_tuning_validates_on_new_prompts_not_on_prompts_the_base_model_trained_on():
+    from scripts.personal_tune import VALIDATION_PROMPTS
+
+    assert VALIDATION_PROMPTS == "val"

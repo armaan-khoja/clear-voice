@@ -4,6 +4,7 @@ In a Colab cell, after notebook 3 has run once:
     !git -C /content/clear-voice pull -q
     %run scripts/overnight.py              (round 1: fold B, baselines, personalisation, results, medium)
     %run scripts/overnight.py --round2     (round 2: tuned personalisation, large-v3-turbo)
+    %run scripts/overnight.py --round3     (round 3: personalisation tuned on new sentences)
 
 Each step is skipped if its output files already exist, so rerunning after a disconnect resumes where it stopped.
 Progress is appended to MyDrive/clearvoice/results/overnight_log.txt.
@@ -52,6 +53,11 @@ def plan_round2() -> list:
         Step("turbo, fold A", nb("03_finetune"), ["results/val_ft_holdA_large-v3-turbo.csv"], _finetune("A", "large-v3-turbo")),
         Step("turbo, fold B", nb("03_finetune"), ["results/val_ft_holdB_large-v3-turbo.csv"], _finetune("B", "large-v3-turbo")),
     ]
+
+
+def plan_round3() -> list:
+    """Personalisation tuned on validation prompts (new sentences), replacing round 2's biased choice."""
+    return [Step("personal tuning on new sentences", "scripts/personal_tune.py", ["results/personalise_tuned_v2.csv"])]
 
 
 def validation_files(work: str) -> list:
@@ -125,4 +131,6 @@ if __name__ == "__main__":
 
     from IPython import get_ipython
 
-    main(get_ipython().user_ns["WORK"], plan_round2() if "--round2" in sys.argv else None)
+    rounds = {"--round2": plan_round2, "--round3": plan_round3}
+    chosen = [rounds[a] for a in sys.argv if a in rounds]
+    main(get_ipython().user_ns["WORK"], chosen[0]() if chosen else None)

@@ -133,9 +133,17 @@ def personal_subsets(meta: pd.DataFrame, prompt_split: dict, speaker: str,
 
 
 def personal_validation(meta: pd.DataFrame, prompt_split: dict, speaker: str,
-                        after_minutes: float = 10, seed: int = SEED) -> pd.DataFrame:
-    """The speaker's training-prompt clips left over after the largest personal set: used to tune the
-    personalisation recipe, so choosing it never looks at the test sentences."""
+                        after_minutes: float = 10, seed: int = SEED, prompts: str = "train") -> pd.DataFrame:
+    """Clips for tuning the personalisation recipe without looking at the test sentences.
+
+    prompts="val": the speaker's clips of validation prompts, which no model trains on (the fair choice).
+    prompts="train": the speaker's training-prompt clips left over after the largest personal set. These
+    prompts were in the base model's training data, so they favour recipes that change the model least.
+    """
+    if prompts == "val":
+        meta = usable(meta)
+        mine = meta[(meta["speaker"] == speaker) & (meta["text_norm"].map(prompt_split) == "val")]
+        return pick_eval_copies(mine).reset_index(drop=True)
     pool = _personal_pool(meta, prompt_split, speaker, seed)
     return pool.iloc[min(_first_minutes(pool, after_minutes), len(pool)):].copy()
 
