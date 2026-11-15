@@ -2,7 +2,8 @@
 
 In a Colab cell, after notebook 3 has run once:
     !git -C /content/clear-voice pull -q
-    %run scripts/overnight.py
+    %run scripts/overnight.py              (round 1: fold B, baselines, personalisation, results, medium)
+    %run scripts/overnight.py --round2     (round 2: tuned personalisation, large-v3-turbo)
 
 Each step is skipped if its output files already exist, so rerunning after a disconnect resumes where it stopped.
 Progress is appended to MyDrive/clearvoice/results/overnight_log.txt.
@@ -11,6 +12,7 @@ import gc
 import os
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 
 
 @dataclass
@@ -42,6 +44,23 @@ def plan() -> list:
     ]
 
 
+def plan_round2() -> list:
+    """After the first round: tune personalisation, then try whisper-large-v3-turbo as the base model."""
+    nb = "notebooks/{}.ipynb".format
+    return [
+        Step("personal tuning", "scripts/personal_tune.py", ["results/personalise_tuned.csv"]),
+        Step("turbo, fold A", nb("03_finetune"), ["results/val_ft_holdA_large-v3-turbo.csv"], _finetune("A", "large-v3-turbo")),
+        Step("turbo, fold B", nb("03_finetune"), ["results/val_ft_holdB_large-v3-turbo.csv"], _finetune("B", "large-v3-turbo")),
+    ]
+
+
+def validation_files(work: str) -> list:
+    """Model names that have validation predictions, e.g. ['holdA', 'holdA_medium']."""
+    import glob
+
+    return [Path(p).name[len("val_ft_"):-len(".csv")] for p in glob.glob(f"{work}/results/val_ft_*.csv")]
+
+
 def _free_gpu(ip) -> None:
     """%run leaves a notebook's variables behind; drop the big ones so the next step has the GPU's memory."""
     for k in ["model", "processor", "trainer", "audio", "test_audio", "preds"]:
@@ -55,7 +74,7 @@ def _free_gpu(ip) -> None:
         pass
 
 
-def main(work: str) -> None:
+def main(work: str, steps: list | None = None) -> None:
     import pandas as pd
     from IPython import get_ipython
 
@@ -71,7 +90,7 @@ def main(work: str) -> None:
     def finished(step: Step) -> bool:
         return all(os.path.exists(f"{work}/{o}") for o in step.outputs)
 
-    for step in plan():
+    for step in steps or plan():
         if finished(step):
             log(f"skip  {step.label} (already done)")
             continue
@@ -93,8 +112,7 @@ def main(work: str) -> None:
 
     importlib.reload(report)  # this session imported the module before compare_validation existed
     val = {m: pd.read_csv(f"{work}/results/val_ft_{m}.csv", keep_default_na=False, na_values=[])
-           for m in ["holdA", "holdB", "holdA_medium", "holdB_medium"]
-           if os.path.exists(f"{work}/results/val_ft_{m}.csv")}
+           for m in sorted(validation_files(work))}
     if val:
         table = report.compare_validation(val)
         table.to_csv(f"{work}/results/model_choice.csv", index=False)
@@ -103,6 +121,8 @@ def main(work: str) -> None:
 
 
 if __name__ == "__main__":
+    import sys
+
     from IPython import get_ipython
 
-    main(get_ipython().user_ns["WORK"])
+    main(get_ipython().user_ns["WORK"], plan_round2() if "--round2" in sys.argv else None)
