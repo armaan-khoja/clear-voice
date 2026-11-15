@@ -140,13 +140,13 @@ const Hook: React.FC<SceneProps> = ({part}) => {
 	return (
 		<Frame>
 			<Claim at={4} size={64}>
-				A speaker with {severityWords(clip.severity)} dysarthria. The model has never heard this speaker or this sentence.
+				A speaker with {severityWords(clip.severity)} dysarthria. The model has never heard this speaker or this {n === 1 ? 'word' : 'sentence'}.
 			</Claim>
 			<Proof at={20} style={{top: 340, left: M}}>
 				<Wave clip={clip} playAt={part.playAt!} width={1640} />
 			</Proof>
 			<Claim at={end + 8} size={44} top={470}>
-				Stock Whisper got {right} of {n} words right.
+				{n === 1 ? `Stock Whisper got the word ${right ? 'right' : 'wrong'}.` : `Stock Whisper got ${right} of ${n} words right.`}
 			</Claim>
 			<Transcripts clip={clip} at={end + 20} top={560} systems={[STOCK, 'Clear Voice']} />
 		</Frame>
