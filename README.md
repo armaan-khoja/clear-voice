@@ -22,39 +22,51 @@ TORGO (we used the Hugging Face mirror `abnerh/TORGO-database`) has 16,552 recor
 
 Because everyone reads the same prompts, a random split lets a model memorise sentences it will later be tested on. Earlier work found the same problem in TORGO (the NP-TORGO split). We split twice. The prompts are divided 70% training, 10% validation and 20% test, separately for words and sentences, and near-identical prompts such as "as I choose" and "as I chose" are kept on the same side. The 8 dysarthric speakers are divided into two groups of four, each with two severe, one moderate and one mild speaker (A: F01, M01, F03, M03; B: M02, M04, M05, F04). We train one model per group and test it on the other group's speakers, using only test prompts. So every number in the headline comes from a person the model never heard saying a sentence it never saw. The checkpoint is chosen on validation prompts, so choosing it never rewards memorisation either.
 
-The model is OpenAI's whisper-small fine-tuned with learning rate 1e-5 and batch size 16 on one L4 GPU. Validation word error rate stopped improving after about 1,000 steps, and early stopping kept the best checkpoint. We compare it with stock whisper-small, the model it started from, and stock whisper-large-v3, which is about six times bigger.
+We fine-tuned two sizes of OpenAI's Whisper, whisper-small (244 million parameters) and whisper-medium (769 million), with learning rate 1e-5 and an effective batch of 16 on one L4 GPU, scoring the validation sentences every 250 steps and keeping the best checkpoint. We chose between them on validation alone: averaged over both groups, fine-tuned whisper-medium got 15.1% of validation words wrong and fine-tuned whisper-small 17.2%, so Clear Voice is the fine-tuned whisper-medium. We compare it with the stock model it started from, stock whisper-small, and stock whisper-large-v3, which is twice the size of whisper-medium.
 
 We normalise case, punctuation and numbers on both sides before scoring. Sentences are scored by word error rate and single words by character error rate. The 95% intervals come from resampling whole speakers, because with eight speakers the variation between people matters more than the variation between clips. We also report the median clip, because Whisper sometimes produces a long run of invented words for a single short recording, and one such clip can move a total a long way.
 
 ## Results
-
-TODO(final): round 2 (whisper-large-v3-turbo as the base, tuned personalisation) is running; the model reported here will be the one with the best validation score, and both will be listed.
 
 New speakers with dysarthria, saying prompts the models never saw (690 recordings, 8 speakers):
 
 | System | Sentences: words wrong | 95% interval | Median clip | Single words: characters wrong | 95% interval |
 |---|---|---|---|---|---|
 | Stock whisper-small | 44.7% | 16% to 87% | 16.7% | 66.8% | 42% to 98% |
+| Stock whisper-medium (what Clear Voice started from) | 33.8% | 14% to 62% | 14.3% | 95.8% | 50% to 146% |
 | Stock whisper-large-v3 | 22.1% | 11% to 37% | 8.3% | 57.4% | 35% to 84% |
-| Clear Voice (fine-tuned whisper-small) | 31.8% | 17% to 50% | 25.0% | 41.0% | 30% to 52% |
+| **Clear Voice (fine-tuned whisper-medium)** | **29.2%** | 14% to 49% | 12.5% | **39.3%** | 29% to 50% |
 
-Clear Voice is the best of the three on single words, and it cuts sentence errors by 29% compared with the model it started from. It does not beat the much larger stock model on sentences. The mean and the median also disagree: stock whisper-small's mean is pulled up by a few recordings where it invented long strings of words, while its typical sentence was better than Clear Voice's. Fine-tuning seems to have removed most of those runaway outputs at the cost of more small mistakes on sentences stock Whisper already got nearly right. TODO(check): confirm this from the per-clip predictions.
+Clear Voice is the best of the four on single words, by a wide margin, and it gets 14% fewer sentence words wrong than the model it started from. It does not beat stock whisper-large-v3 on sentences.
+
+The single-word result is mostly about invented text. Asked to transcribe one short word from a speaker with dysarthria, stock Whisper often writes something long instead: for the word "brawn" from speaker M05, stock whisper-medium wrote a "B" followed by a long run of the letter U. Character error rates can pass 100% for that reason, as stock whisper-medium's interval does. Sentences show the same pattern less dramatically. For M04, who has severe dysarthria, stock whisper-small's word error rate on sentences was 157%: it wrote more wrong words than there were words. Fine-tuned whisper-small brought that down to 67%. The cost of fine-tuning is more small mistakes on sentences that stock Whisper already got right. In a random sample of test recordings, stock Whisper heard "I feel I can play this weekend" correctly from M04, and Clear Voice wrote "I feel high-spin this weekend".
+
+Every model we tried, on the same test:
+
+| System | Validation: words wrong | Sentences: words wrong | Single words: characters wrong |
+|---|---|---|---|
+| Stock whisper-small | | 44.7% | 66.8% |
+| Stock whisper-medium | | 33.8% | 95.8% |
+| Stock whisper-large-v3-turbo | | 24.8% | 64.9% |
+| Stock whisper-large-v3 | | 22.1% | 57.4% |
+| Fine-tuned whisper-small | 17.2% | 31.8% | 41.0% |
+| Fine-tuned whisper-medium (Clear Voice) | 15.1% | 29.2% | 39.3% |
 
 The same Clear Voice model looks better on easier tests:
 
 | Test (dysarthric speakers only) | Sentences: words wrong | Single words: characters wrong |
 |---|---|---|
-| New speaker, prompts seen in training | 19.0% | 19.7% |
-| Seen speakers, new prompts | 26.1% | 34.0% |
-| New speaker, new prompts (headline) | 31.8% | 41.0% |
+| New speaker, prompts seen in training | 15.5% | 18.7% |
+| Seen speakers, new prompts | 18.9% | 32.6% |
+| New speaker, new prompts (headline) | 29.2% | 39.3% |
 
-Had we tested on prompts the model had already practised, we would have reported 19% instead of 32% on sentences, and 20% instead of 41% on single words. The second row uses the other group's speakers, so it is not a like-for-like comparison with the first and third.
+Had we tested on prompts the model had already practised, we would have reported 16% instead of 29% on sentences, and 19% instead of 39% on single words. The second row uses the other group's speakers, so it is not a like-for-like comparison with the first and third.
 
-Fine-tuning barely touched ordinary speech. On 200 LibriSpeech recordings, Clear Voice gets 3.6% to 4.1% of words wrong (one model per group) against 3.3% for stock whisper-small and 1.4% for whisper-large-v3.
+Fine-tuning cost a little on ordinary speech. On 200 LibriSpeech recordings, Clear Voice gets 3.0% of words wrong with either group's model, against 2.4% for stock whisper-medium, 3.3% for stock whisper-small and 1.4% for whisper-large-v3.
 
-Personalisation: our first recipe adapted the model to one speaker with 2, 5 and 10 minutes of that person's recordings, at learning rate 1e-5 for 5 epochs. It barely helped. For M01 (severe) errors went from 58% to 51% with 10 minutes, and for F03 (moderate) they stayed at 32%. That recipe was too cautious, so we tuned it on each speaker's other recordings (never the test prompts) and reran the curve. TODO(final): tuned curve.
+Personalisation: we adapted the fine-tuned whisper-small to one speaker with 2, 5 and 10 minutes of that person's own recordings. To pick the training recipe without touching the test, we tried four recipes on each speaker's recordings of validation sentences. The most cautious one (learning rate 1e-5, 5 epochs) won for both speakers; training longer or harder made new sentences worse, for example from 20% to 44% of words wrong for F03 at learning rate 5e-5. With that recipe, 10 minutes of M01's voice (severe) brought errors on new sentences from 58% to 52%, and F03's (moderate) stayed at 32%. Ten minutes of read prompts is not enough to adapt to a voice without memorising the prompts.
 
-TODO(final): where it fails, from listening to the 10 worst recordings.
+Where it fails, from reading the transcripts of the worst recordings and of a random sample: most failures are single words that come back as a different real word ("eight" as "root", "ate" as "hitting", "pit" as "beach"), and occasionally a repeated word ("briar" as "The best best best best"). On sentences, the errors are near-misses on the unusual words, such as "The prospects of cupping" as "The prospect of capital", and changes to sentences stock Whisper already had right. Some errors are spelling only: "grey" written as "gray" counts as a wrong word.
 
 ## Limits
 
@@ -70,7 +82,7 @@ Data:
 - Rudzicz, F., Namasivayam, A. K. and Wolff, T. (2012). The TORGO database of acoustic and articulatory speech from speakers with dysarthria. Language Resources and Evaluation 46(4). Mirror: https://huggingface.co/datasets/abnerh/TORGO-database
 - Panayotov, V. et al. (2015). LibriSpeech: an ASR corpus based on public domain audio books. https://huggingface.co/datasets/openslr/librispeech_asr
 
-Models: OpenAI Whisper (Radford et al., 2023, "Robust Speech Recognition via Large-Scale Weak Supervision"): `openai/whisper-small`, `openai/whisper-large-v3`, `openai/whisper-tiny` (tests only).
+Models: OpenAI Whisper (Radford et al., 2023, "Robust Speech Recognition via Large-Scale Weak Supervision"): `openai/whisper-small`, `openai/whisper-medium`, `openai/whisper-large-v3`, `openai/whisper-large-v3-turbo`, `openai/whisper-tiny` (tests only).
 
 Related work:
 - Hui, M., Zhang, J. and Mohan, A. (2024). Enhancing AAC Software for Dysarthric Speakers in e-Health Settings: An Evaluation Using TORGO. arXiv:2411.00980. They found TORGO's shared prompts inflate results and built NP-TORGO, a split with no prompt overlap; our strict split follows the same idea.
