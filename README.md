@@ -66,7 +66,7 @@ Say It is a browser app Suvir built for the project. It runs stock Whisper on th
 | Stock whisper-large-v3 | | 22.1% | 57.4% |
 | Stock whisper-large-v3 + Say It corrector | | 22.7% | 76.6% |
 
-It more than doubled the validation errors, so Clear Voice does not use it. On the strict test it changed 207 of the 690 dysarthric clips: 3 for the better and 173 for the worse. Nearly all the damage is on single words, which it turns into everyday phrases from its list: "feet" became "my feet hurt" and "witty" became "maybe". On sentences it made little difference either way. This is not the job the corrector was built for, which is a person saying their own everyday requests, and TORGO's word lists and read sentences are not that. Say It's other feature, recognising a person's saved phrases from their voice, is not tested here. To combine them properly we would retrain the trees on Clear Voice's output, use them only on sentences, and limit the phrase list to the person's own phrases.
+It more than doubled the validation errors, so Clear Voice does not use it. On the strict test it changed 207 of the 690 dysarthric clips: 3 for the better and 173 for the worse. Nearly all the damage is on single words, which it turns into everyday phrases from its list: "feet" became "my feet hurt" and "witty" became "maybe". On sentences it made little difference either way. We also tried lighter versions: using it only when the model heard two or more words, and without the phrase list. They stop the damage to single words but do not help: the best on validation was still Clear Voice alone (15.1% of words wrong, against 15.2% for the sentences-only version), and on the test the sentences-only version fixed 3 clips and broke 9. This is not the job the corrector was built for, which is a person saying their own everyday requests, and TORGO's word lists and read sentences are not that. Say It's other feature, recognising a person's saved phrases from their voice, is not tested here. To combine them properly we would retrain the trees on Clear Voice's output, use them only on sentences, and limit the phrase list to the person's own phrases.
 
 The same Clear Voice model looks better on easier tests:
 
@@ -126,6 +126,6 @@ python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/pytest
 ```
 
-`scripts/sayit/evaluate.py` reruns the Say It corrector test from the app's HTML file and the saved predictions; it needs Node.js.
+`scripts/sayit/evaluate.py` reruns the Say It corrector test from the app's HTML file and the saved predictions, and `scripts/sayit/variants.js` runs the lighter versions on the same inputs; both need Node.js.
 
 `.venv/bin/pytest -m slow` also runs the slower tests, which download whisper-tiny. `splits/` holds the row indices of every split; `scripts/make_splits.py` rebuilds them, and notebook 1 checks that the rebuild matches.
