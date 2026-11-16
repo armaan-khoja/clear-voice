@@ -115,7 +115,7 @@ Libraries: PyTorch, Hugging Face Transformers, huggingface_hub, jiwer, pandas, P
 
 Say It (Suvir's companion app, whose corrector we tested): runs stock Whisper in the browser with Transformers.js (`onnx-community/whisper-large-v3-turbo`, `whisper-small.en`, `whisper-base.en`) and ONNX Runtime Web, recognises saved phrases with the `whisper-base.en` encoder from sherpa-onnx (csukuangfj/sherpa-onnx-whisper-base.en), and picks corrections with gradient-boosted decision trees (XGBoost; Friedman, 2001).
 
-AI tools: Claude (Anthropic) helped us brainstorm the idea, write and test the code, design the video and draft this write-up. We reviewed every part.
+AI tools: Claude (Anthropic) helped us write and test the code, design the video and draft this write-up. We reviewed every part.
 
 ## Reproduce
 
