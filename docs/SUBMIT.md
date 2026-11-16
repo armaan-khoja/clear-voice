@@ -12,7 +12,7 @@ Submissions close at 11:59 PM ET, Sunday 15 November 2026.
 | Your Email | (your email) |
 | Building As | Team |
 | Team Name | Clear Voice |
-| One-Sentence Pitch | Clear Voice is OpenAI's Whisper fine-tuned for people with dysarthria; tested on people and sentences it never heard, it gets far fewer single words wrong than any stock Whisper model we tried (39% of letters wrong, against 57–96%). |
+| One-Sentence Pitch | Clear Voice is an AI speech recognizer that helps people whose speech is affected by ALS, Parkinson's, cerebral palsy or a stroke be understood, cutting single-word errors from 96% to 39% on people it had never heard. |
 | New to AI? | Leave as chosen, if true |
 | Code Link | https://github.com/armaan-khoja/clear-voice |
 | Write-up Link | https://github.com/armaan-khoja/clear-voice/blob/main/Research%20Paper%20Updated%20Final.pdf |
@@ -28,5 +28,5 @@ Submissions close at 11:59 PM ET, Sunday 15 November 2026.
 
 ## Before you press submit
 
+- Upload `Research Paper Updated Final.pdf` (the fixed paper: abstract compares honest testing with fine-tuning, and it credits Claude as a coding assistant). Not the "Final 2" copy, which is the old version.
 - Open the demo video link once and press play.
-- Suvir: check the paper's abstract ("larger difference than the choice of the model" should be "than fine-tuning did") and add a line saying which AI tools helped, as the README does.
