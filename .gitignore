@@ -24,3 +24,8 @@ video/out/
 video/public/spec/
 video/public/clips/
 .impeccable/
+
+# Teammate app (holds TORGO audio) and Drive downloads: never commit
+say-it*.html
+results-*.zip
+/preds_*.csv
