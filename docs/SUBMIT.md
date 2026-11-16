@@ -17,7 +17,7 @@ Submissions close at 11:59 PM ET, Sunday 15 November 2026.
 | Code Link | https://github.com/armaan-khoja/clear-voice |
 | Write-up Link | https://github.com/armaan-khoja/clear-voice/blob/main/Research%20Paper%20Updated%20Final.pdf |
 | Write-up File | Attach `Research Paper Updated Final.pdf` from this folder |
-| Demo Video Link | The link to `video/out/ClearVoice-Exam.mp4` once it is uploaded (Google Drive, anyone with the link can view) |
+| Demo Video Link | https://armaan-khoja.github.io/clear-voice/ |
 | Track | Languages |
 
 ## What each link shows

@@ -2,6 +2,7 @@
 
 Track: Languages. Team: Armaan Khoja and Suvir Aylawadi.
 
+**Demo video:** https://armaan-khoja.github.io/clear-voice/  
 **Research paper:** [Research Paper Updated Final.pdf](Research%20Paper%20Updated%20Final.pdf)
 
 > Research prototype, not a medical device. It uses the TORGO database, which is licensed for non-commercial research only.
