@@ -21,7 +21,7 @@ def _clips(tmp_path):
     df = pd.DataFrame({"row_id": [5, 9], "file_idx": [0, 1], "row_in_file": [5, 2], "speaker": ["M01", "F04"],
                        "severity": ["severe", "mild"], "prompt_type": ["word", "sentence"],
                        "ref": ["yes", "the dog ran"], "Clear Voice": ["yes", "the dog ran"],
-                       "whisper-small": ["Thank you.", "The dark ran."], "whisper-large-v3": ["Yes.", "the dog run"]})
+                       "whisper-medium": ["Thank you.", "The dark ran."], "whisper-large-v3": ["Yes.", "the dog run"]})
     path = tmp_path / "demo_clips.csv"
     df.to_csv(path, index=False)
     return path
@@ -48,13 +48,13 @@ def test_live_transcription_says_when_the_fine_tuned_model_is_missing(monkeypatc
     monkeypatch.delenv("CV_MODEL_A", raising=False)
     monkeypatch.setattr(demo_app, "_transcribe_with", lambda name, audio: f"[{name}]")
     stock, cv = demo_app.transcribe_live((16000, np.zeros(16000, dtype=np.int16)))
-    assert stock == "[openai/whisper-small]" and "not loaded" in cv
+    assert stock == "[openai/whisper-medium]" and "not loaded" in cv
 
 
 def test_show_clip_shows_an_empty_transcript_as_empty_not_nan(monkeypatch, tmp_path):
     path = _clips(tmp_path)
     df = pd.read_csv(path)
-    df.loc[0, "whisper-small"] = ""
+    df.loc[0, "whisper-medium"] = ""
     df.to_csv(path, index=False)
     monkeypatch.setattr(demo_app, "CLIPS_CSV", path)
     monkeypatch.setattr(demo_app, "clip_audio", lambda row: (16000, np.zeros(10, dtype=np.float32)))
@@ -76,5 +76,5 @@ def test_warm_up_loads_both_models_and_the_demo_clip_files(monkeypatch, tmp_path
     monkeypatch.setattr(demo_app, "_model", lambda name: loaded.append(name))
     monkeypatch.setattr(demo_app, "_parquet", lambda i: files.append(i))
     demo_app.warm_up()
-    assert loaded == ["openai/whisper-small", "someone/clear-voice-holda"]
+    assert loaded == ["openai/whisper-medium", "someone/clear-voice-holda"]
     assert sorted(files) == [0, 1]

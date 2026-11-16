@@ -3,7 +3,7 @@
 Tabs:
 - Unseen speakers: clips from dysarthric speakers the model never heard, saying sentences it never heard,
   with the true text and each system's output (precomputed by the notebooks).
-- Try it: record or upload speech; stock whisper-small and Clear Voice transcribe it live.
+- Try it: record or upload speech; stock whisper-medium (the model Clear Voice was fine-tuned from) and Clear Voice transcribe it live.
 - Results: the write-up's tables and figures.
 """
 import os
@@ -23,11 +23,11 @@ for root in (HERE, HERE.parent):  # the package sits next to app.py on the Space
 from clearvoice.audio import to_16k_mono  # noqa: E402
 
 DISCLAIMER = "Research prototype, not a medical device. Uses the TORGO database (non-commercial research use)."
-STOCK = "openai/whisper-small"
+STOCK = "openai/whisper-medium"  # the model Clear Voice was fine-tuned from
 CLIPS_CSV = HERE / "demo_clips.csv"
 FIGURES = HERE / "figures"
 SUMMARY = HERE / "summary.md"
-SYSTEMS = ["whisper-small", "whisper-large-v3", "Clear Voice"]
+SYSTEMS = ["whisper-medium", "whisper-large-v3", "Clear Voice"]
 
 
 def prepare_mic(x):
@@ -56,7 +56,7 @@ def _transcribe_with(name: str, audio: np.ndarray) -> str:
 
 
 def transcribe_live(x):
-    """Return (stock whisper-small, Clear Voice) transcripts for a recording."""
+    """Return (stock whisper-medium, Clear Voice) transcripts for a recording."""
     audio = prepare_mic(x)
     if audio is None:
         return "", ""
@@ -137,7 +137,7 @@ def build_ui() -> gr.Blocks:
             gr.Markdown("Speak or upload a short clip. Both models run live on this server's CPU, so it takes a few seconds.")
             mic = gr.Audio(sources=["microphone", "upload"], type="numpy", label="Your recording")
             button = gr.Button("Transcribe")
-            stock = gr.Textbox(label="Stock whisper-small")
+            stock = gr.Textbox(label="Stock whisper-medium")
             cv = gr.Textbox(label="Clear Voice")
             button.click(transcribe_live, mic, [stock, cv])
         with gr.Tab("Results"):

@@ -12,7 +12,7 @@ Dysarthria makes speech slow, slurred or quiet, because the muscles used for spe
 
 Clear Voice is a speech recogniser fine-tuned on dysarthric speech, together with a test that tries hard not to flatter it. You give it a recording and it returns the words. The person we had in mind is a teenager with cerebral palsy dictating a message, and the speech therapist deciding whether a few minutes of that teenager's own recordings would make the tool work for them.
 
-The demo is a small web app. One tab plays recordings from people the model never heard and shows what stock Whisper and Clear Voice each wrote next to what was actually said. Another lets anyone record themselves.
+The demo is a video, plus a small web app in `app/` built to run as a Hugging Face Space. One tab plays recordings from people the model never heard and shows what stock Whisper and Clear Voice each wrote next to what was actually said. Another lets anyone record themselves. The Space is not online yet, because the fine-tuned model has not been uploaded.
 
 We started from suggested project 4.4.3, "Speech recognition across accents", which fine-tunes Whisper and compares word error rates across groups. We changed three things. The users are people with dysarthria, who are served far worse than accented speakers. The data is TORGO instead of Common Voice. And the test asks harder questions: does the model work for a new person saying a new sentence, how much do easier tests inflate the score, how many minutes of someone's own voice does personalisation need, and did fine-tuning damage ordinary speech?
 
@@ -90,7 +90,7 @@ TORGO has only 8 speakers with dysarthria, so each model is trained on four of t
 
 ## What we would do next
 
-Test it with a speech therapist and with people with dysarthria who agree to take part, on their own dictation instead of read prompts. Train on a larger collection gathered with consent, such as the Speech Accessibility Project, so each model sees far more than four dysarthric speakers.
+Test it with a speech therapist and with people with dysarthria who agree to take part, on their own dictation instead of read prompts. Train on a larger collection gathered with consent, such as the Speech Accessibility Project, so each model sees far more than four dysarthric speakers. Put Clear Voice inside Say It, Suvir's browser app that remembers a person's own phrases by their voice, with its corrector retrained on Clear Voice's output and used only on sentences.
 
 ## Sources
 
