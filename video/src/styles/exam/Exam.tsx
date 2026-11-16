@@ -158,7 +158,7 @@ const Demo: React.FC<SceneProps> = ({part}) => {
 	const clip = part.clip!;
 	const n = 2 + (part.index ?? 0);
 	return (
-		<Page n={4 + (part.index ?? 0)}>
+		<Page n={3 + (part.index ?? 0)}>
 			<AnswerSheet
 				clip={clip}
 				playAt={part.playAt!}
@@ -210,7 +210,7 @@ const How: React.FC<SceneProps> = ({part}) => {
 
 const Results: React.FC<SceneProps> = ({part}) => {
 	const f = useCurrentFrame();
-	const n = 5 + (part.total ?? 1);
+	const n = 3 + (part.total ?? 1);
 	const sentences = Object.fromEntries(data.headline.map((b) => [b.name, b.value]));
 	const words = data.headline.map((b) => ({name: b.name, value: data.headlineWords.find((w) => w.name === b.name)?.value ?? 0}));
 	const max = Math.max(...words.map((b) => b.value)) * 1.05;
@@ -391,7 +391,7 @@ const Figures: React.FC<SceneProps> = ({part}) => {
 	const f = useCurrentFrame();
 	const last = PAPER_FIGURES.length - 1;
 	return (
-		<Page n={7 + (part.total ?? 1)}>
+		<Page n={4 + (part.total ?? 1)}>
 			<Fade at={4} style={{position: 'absolute', top: 116, left: LEFT, fontSize: 40, fontWeight: 800}}>
 				Insert: figures from our write-up
 			</Fade>
@@ -430,7 +430,7 @@ const Figures: React.FC<SceneProps> = ({part}) => {
 
 const Close: React.FC<SceneProps> = ({part}) => {
 	return (
-		<Page n={8 + (part.total ?? 1)} examinerColumn={false} turnOver={false}>
+		<Page n={5 + (part.total ?? 1)} examinerColumn={false} turnOver={false}>
 			<Fade at={6} style={{position: 'absolute', top: 300, left: 0, right: 0, textAlign: 'center', fontSize: 44, fontWeight: 800, letterSpacing: '0.06em'}}>
 				END OF PAPER
 			</Fade>
