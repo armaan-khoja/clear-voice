@@ -101,7 +101,7 @@ Data:
 - Rudzicz, F., Namasivayam, A. K. and Wolff, T. (2012). The TORGO database of acoustic and articulatory speech from speakers with dysarthria. Language Resources and Evaluation 46(4). Mirror: https://huggingface.co/datasets/abnerh/TORGO-database
 - Panayotov, V. et al. (2015). LibriSpeech: an ASR corpus based on public domain audio books. https://huggingface.co/datasets/openslr/librispeech_asr
 
-Models: OpenAI Whisper (Radford et al., 2023, "Robust Speech Recognition via Large-Scale Weak Supervision"): `openai/whisper-small`, `openai/whisper-medium`, `openai/whisper-large-v3`, `openai/whisper-large-v3-turbo`, `openai/whisper-tiny` (tests only).
+Models: OpenAI Whisper (Radford et al., 2023, "Robust Speech Recognition via Large-Scale Weak Supervision", https://arxiv.org/abs/2212.04356): [whisper-small](https://huggingface.co/openai/whisper-small), [whisper-medium](https://huggingface.co/openai/whisper-medium), [whisper-large-v3](https://huggingface.co/openai/whisper-large-v3), [whisper-large-v3-turbo](https://huggingface.co/openai/whisper-large-v3-turbo), [whisper-tiny](https://huggingface.co/openai/whisper-tiny) (tests only).
 
 Related work:
 - Hui, M., Zhang, J. and Mohan, A. (2024). Enhancing AAC Software for Dysarthric Speakers in e-Health Settings: An Evaluation Using TORGO. arXiv:2411.00980. They found TORGO's shared prompts inflate results and built NP-TORGO, a split with no prompt overlap; our strict split follows the same idea.
@@ -109,13 +109,13 @@ Related work:
 - The Speech Accessibility Project (University of Illinois).
 - A TU Delft thesis on fine-tuning Whisper with LoRA on TORGO.
 
-Tutorial: Hugging Face, "Fine-Tune Whisper For Multilingual ASR with Transformers".
+Tutorial: Hugging Face, "Fine-Tune Whisper For Multilingual ASR with Transformers", https://huggingface.co/blog/fine-tune-whisper
 
 Libraries: PyTorch, Hugging Face Transformers, huggingface_hub, jiwer, pandas, PyArrow, SciPy, soundfile, Matplotlib, Gradio, pytest; Remotion for the demo video.
 
-Say It (Suvir's companion app, whose corrector we tested): runs stock Whisper in the browser with Transformers.js (`onnx-community/whisper-large-v3-turbo`, `whisper-small.en`, `whisper-base.en`) and ONNX Runtime Web, recognises saved phrases with the `whisper-base.en` encoder from sherpa-onnx (csukuangfj/sherpa-onnx-whisper-base.en), and picks corrections with gradient-boosted decision trees (XGBoost; Friedman, 2001).
+Say It (Suvir's companion app, whose corrector we tested): runs stock Whisper in the browser with [Transformers.js](https://huggingface.co/docs/transformers.js) ([onnx-community/whisper-large-v3-turbo](https://huggingface.co/onnx-community/whisper-large-v3-turbo), [whisper-small.en](https://huggingface.co/onnx-community/whisper-small.en), [whisper-base.en](https://huggingface.co/onnx-community/whisper-base.en)) and [ONNX Runtime Web](https://onnxruntime.ai/docs/tutorials/web/), recognises saved phrases with the whisper-base.en encoder from [sherpa-onnx](https://huggingface.co/csukuangfj/sherpa-onnx-whisper-base.en), and picks corrections with gradient-boosted decision trees ([XGBoost](https://xgboost.ai); Friedman, 2001).
 
-AI tools: Claude (Anthropic) helped us write and test the code, design the video and draft this write-up. We reviewed every part.
+AI tools: [Claude](https://claude.ai) (Anthropic) helped us write and test the code, design the video and draft this write-up. We reviewed every part.
 
 ## Reproduce
 
