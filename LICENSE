@@ -1,0 +1,10 @@
+Copyright (c) 2026 Armaan Khoja and Suvir Aylawadi. All rights reserved.
+
+This repository is shared publicly so it can be read and judged. No permission
+is granted to copy, modify, distribute or use this code, its results or the
+demo video, in whole or in part, without written permission from the authors.
+
+Third-party software, models and data used by this project keep their own
+licences (see Sources in README.md). The TORGO database is licensed for
+non-commercial research only, so models trained on it may not be used
+commercially.

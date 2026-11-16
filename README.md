@@ -7,6 +7,8 @@ Track: Languages. Team: Armaan Khoja and Suvir Aylawadi.
 
 > Research prototype, not a medical device. It uses the TORGO database, which is licensed for non-commercial research only.
 
+Copyright © 2026 Armaan Khoja and Suvir Aylawadi. All rights reserved. See [LICENSE](LICENSE).
+
 ## The problem
 
 Dysarthria makes speech slow, slurred or quiet, because the muscles used for speaking are weak or hard to control. It comes with cerebral palsy, ALS, stroke and Parkinson's disease. Phone dictation and live captions are trained mostly on typical voices, so they turn this speech into the wrong words, and a tool everyone else uses to text a friend or follow a lecture stops working for the people who would gain most from it.
