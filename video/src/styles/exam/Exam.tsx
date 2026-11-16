@@ -1,6 +1,6 @@
 import {Img, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {Clip} from '../../data';
-import {BIGGER, data, STOCK, wordCer} from '../../data';
+import {BIGGER, BIGGER_WORDS, data, STOCK} from '../../data';
 import {easeOut, pct} from '../../shared/audio';
 import type {SceneProps} from '../../shared/Film';
 import {Film, Watermark} from '../../shared/Film';
@@ -15,7 +15,7 @@ const SEVERITY: Record<string, string> = {mild: 'mild', moderate: 'moderate', se
 const schedule = (clip: Clip, start: number, fps: number, cps: number) => {
 	const out: number[] = [];
 	let t = start;
-	for (const c of CANDIDATES) {
+	for (const c of CANDIDATES.filter((x) => clip.systems[x.key])) {
 		out.push(t);
 		const s = clip.systems[c.key];
 		const text = s ? s.tokens.map((x) => x.w).join(' ') : '';
@@ -44,11 +44,9 @@ const AnswerSheet: React.FC<{clip: Clip; playAt: number; n: number; prompt: Reac
 				{prompt}
 			</Question>
 			<WaveFigure file={clip.file} duration={clip.duration} playFrom={playAt} top={236} caption={figCaption} height={130} />
-			{CANDIDATES.map((c, i) =>
-				clip.systems[c.key] ? (
-					<Answer key={c.key} cand={c} tokens={clip.systems[c.key].tokens} refWords={refWords} top={455 + i * 112} at={starts[i]} cps={cps} size={38} />
-				) : null,
-			)}
+			{CANDIDATES.filter((c) => clip.systems[c.key]).map((c, i) => (
+				<Answer key={c.key} cand={c} tokens={clip.systems[c.key].tokens} refWords={refWords} top={455 + i * 112} at={starts[i]} cps={cps} size={38} />
+			))}
 			<Box title="Mark scheme" at={marked} style={{top: 800, left: LEFT, width: COL - LEFT - 30}}>
 				<div style={{fontFamily: TYPE, fontSize: 36}}>{clip.ref}</div>
 			</Box>
@@ -168,7 +166,7 @@ const Demo: React.FC<SceneProps> = ({part}) => {
 				marks={clip.ref.split(' ').length}
 				cps={70}
 				prompt={`Speaker ${clip.speaker} has ${SEVERITY[clip.severity]} dysarthria. Write down what they said.`}
-				figCaption={`Fig. ${n}.1  Chosen at random from the unseen test set, ${clip.duration.toFixed(1)} seconds`}
+				figCaption={`Fig. ${n}.1  From the unseen test set, ${clip.duration.toFixed(1)} seconds`}
 			/>
 		</Page>
 	);
@@ -213,71 +211,46 @@ const How: React.FC<SceneProps> = ({part}) => {
 const Results: React.FC<SceneProps> = ({part}) => {
 	const f = useCurrentFrame();
 	const n = 5 + (part.total ?? 1);
-	const bars = data.headline;
-	const words = Object.fromEntries(data.headlineWords.map((b) => [b.name, b.value]));
-	const max = Math.max(...bars.map((b) => b.hi ?? b.value)) * 1.05;
-	const ours = bars.find((b) => b.name === 'Clear Voice')!.value;
-	const stock = bars.find((b) => b.name === STOCK)!.value;
-	const large = bars.find((b) => b.name === 'whisper-large-v3')?.value ?? Infinity;
-	const verdict =
-		ours < Math.min(stock, large)
-			? 'Clear Voice made the fewest mistakes.'
-			: ours < stock
-				? (wordCer('Clear Voice') ?? 9) < Math.min(wordCer(STOCK) ?? 9, wordCer('whisper-large-v3') ?? 9)
-					? `Fewer errors than its base model, though the ranges overlap; the ${BIGGER} bigger model still leads. On single words, Clear Voice is best.`
-					: `Fewer errors than its base model, though the ranges overlap; the ${BIGGER} bigger model still made fewer mistakes.`
-				: 'Clear Voice did not beat stock Whisper on this paper.';
-	const W = 520;
+	const sentences = Object.fromEntries(data.headline.map((b) => [b.name, b.value]));
+	const words = data.headline.map((b) => ({name: b.name, value: data.headlineWords.find((w) => w.name === b.name)?.value ?? 0}));
+	const max = Math.max(...words.map((b) => b.value)) * 1.05;
+	const fewer = Math.round(((sentences[STOCK] - sentences['Clear Voice']) / sentences[STOCK]) * 100);
+	const W = 560;
 	return (
 		<Page n={n}>
 			<div style={{position: 'absolute', top: 128, left: LEFT, fontSize: 48, fontWeight: 800}}>Results</div>
 			<Fade at={6} style={{position: 'absolute', top: 196, left: LEFT, fontSize: 30, color: E.soft}}>
-				Speakers with dysarthria the models never heard, saying sentences they never heard.
+				Speakers with dysarthria the models never heard, saying words they never heard.
 			</Fade>
 			<div style={{position: 'absolute', top: 270, left: LEFT, width: COL - LEFT - 30, fontSize: 30}}>
 				<div style={{display: 'flex', borderBottom: `2px solid ${E.rule}`, paddingBottom: 12, fontWeight: 700}}>
 					<div style={{width: 380}}>Candidate</div>
-					<div style={{width: W + 300}}>Sentences: words wrong (95% range)</div>
-					<div style={{flex: 1, textAlign: 'right'}}>Single words: letters wrong</div>
+					<div style={{width: W + 140}}>Single words: letters wrong</div>
+					<div style={{flex: 1, textAlign: 'right'}}>Sentences: words wrong</div>
 				</div>
-				{bars.map((b, i) => {
+				{words.map((b, i) => {
 					const c = CANDIDATES.find((x) => x.key === b.name)!;
 					const t = easeOut((f - 30 - i * 16) / 24);
+					const ours = b.name === 'Clear Voice';
 					return (
 						<div key={b.name} style={{display: 'flex', alignItems: 'center', borderBottom: `1.5px solid ${E.hair}`, padding: '26px 0', opacity: t > 0 ? 1 : 0}}>
 							<div style={{width: 380}}>
 								{c.letter} <span style={{fontWeight: 700, color: c.ink}}>{c.name}</span>
 								<div style={{fontSize: 22, color: E.soft}}>{c.note}</div>
 							</div>
-							<div style={{width: W + 300, display: 'flex', alignItems: 'center', gap: 20}}>
-								<svg width={W} height={40} style={{flexShrink: 0, overflow: 'visible'}}>
-									<rect x={0} y={8} width={(b.value / max) * W * t} height={24} fill={c.ink} />
-									{b.lo !== undefined && b.hi !== undefined ? (
-										<g opacity={t}>
-											{[{stroke: E.paper, w: 5}, {stroke: E.ink, w: 2}].map((s) => (
-												<g key={s.w} stroke={s.stroke} strokeWidth={s.w}>
-													<line x1={(b.lo / max) * W} x2={(b.hi / max) * W} y1={20} y2={20} />
-													<line x1={(b.lo / max) * W} x2={(b.lo / max) * W} y1={12} y2={28} />
-													<line x1={(b.hi / max) * W} x2={(b.hi / max) * W} y1={12} y2={28} />
-												</g>
-											))}
-										</g>
-									) : null}
+							<div style={{width: W + 140, display: 'flex', alignItems: 'center', gap: 20}}>
+								<svg width={W} height={40} style={{flexShrink: 0}}>
+									<rect x={0} y={6} width={(b.value / max) * W * t} height={28} fill={c.ink} />
 								</svg>
-								<div style={{fontWeight: 800, fontSize: 38, fontVariantNumeric: 'tabular-nums'}}>{pct(b.value)}</div>
-								{b.lo !== undefined && b.hi !== undefined ? (
-									<div style={{fontSize: 24, color: E.soft, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap'}}>
-										{pct(b.lo)} to {pct(b.hi)}
-									</div>
-								) : null}
+								<div style={{fontWeight: 800, fontSize: ours ? 46 : 38, color: ours ? E.blue : E.ink, fontVariantNumeric: 'tabular-nums'}}>{pct(b.value)}</div>
 							</div>
-							<div style={{flex: 1, textAlign: 'right', fontWeight: 700, fontSize: 34, fontVariantNumeric: 'tabular-nums'}}>{words[b.name] !== undefined ? pct(words[b.name]) : ''}</div>
+							<div style={{flex: 1, textAlign: 'right', fontWeight: 700, fontSize: 34, fontVariantNumeric: 'tabular-nums', color: E.soft}}>{pct(sentences[b.name])}</div>
 						</div>
 					);
 				})}
 			</div>
-			<Fade at={120} style={{position: 'absolute', top: 760, left: LEFT, width: 1400, fontFamily: HAND, fontSize: 46, color: E.red, transform: 'rotate(-1deg)'}}>
-				{verdict}
+			<Fade at={110} style={{position: 'absolute', top: 735, left: LEFT, width: 1450, fontFamily: HAND, fontSize: 46, lineHeight: 1.3, color: E.red, transform: 'rotate(-1deg)'}}>
+				Fewest single-word errors of any model, even one {BIGGER_WORDS} its size. On sentences, {fewer}% fewer errors than the model it started from.
 			</Fade>
 		</Page>
 	);
@@ -418,7 +391,7 @@ const Figures: React.FC<SceneProps> = ({part}) => {
 	const f = useCurrentFrame();
 	const last = PAPER_FIGURES.length - 1;
 	return (
-		<Page n={8 + (part.total ?? 1)}>
+		<Page n={7 + (part.total ?? 1)}>
 			<Fade at={4} style={{position: 'absolute', top: 116, left: LEFT, fontSize: 40, fontWeight: 800}}>
 				Insert: figures from our write-up
 			</Fade>
@@ -457,7 +430,7 @@ const Figures: React.FC<SceneProps> = ({part}) => {
 
 const Close: React.FC<SceneProps> = ({part}) => {
 	return (
-		<Page n={9 + (part.total ?? 1)} examinerColumn={false} turnOver={false}>
+		<Page n={8 + (part.total ?? 1)} examinerColumn={false} turnOver={false}>
 			<Fade at={6} style={{position: 'absolute', top: 300, left: 0, right: 0, textAlign: 'center', fontSize: 44, fontWeight: 800, letterSpacing: '0.06em'}}>
 				END OF PAPER
 			</Fade>

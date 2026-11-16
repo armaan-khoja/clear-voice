@@ -157,289 +157,183 @@
   },
   "demo": [
     {
-      "rowId": 14743,
-      "file": "clips/14743.wav",
-      "spec": "spec/14743.png",
-      "speaker": "M03",
-      "severity": "mild",
-      "duration": 3.32,
-      "ref": "their house is gray and white",
-      "systems": {
-        "whisper-medium": {
-          "text": "their house is gray and white",
-          "tokens": [
-            {
-              "w": "their",
-              "tag": "ok"
-            },
-            {
-              "w": "house",
-              "tag": "ok"
-            },
-            {
-              "w": "is",
-              "tag": "ok"
-            },
-            {
-              "w": "gray",
-              "tag": "ok"
-            },
-            {
-              "w": "and",
-              "tag": "ok"
-            },
-            {
-              "w": "white",
-              "tag": "ok"
-            }
-          ],
-          "wer": 0.0
-        },
-        "whisper-large-v3": {
-          "text": "their house is gray and white",
-          "tokens": [
-            {
-              "w": "their",
-              "tag": "ok"
-            },
-            {
-              "w": "house",
-              "tag": "ok"
-            },
-            {
-              "w": "is",
-              "tag": "ok"
-            },
-            {
-              "w": "gray",
-              "tag": "ok"
-            },
-            {
-              "w": "and",
-              "tag": "ok"
-            },
-            {
-              "w": "white",
-              "tag": "ok"
-            }
-          ],
-          "wer": 0.0
-        },
-        "Clear Voice": {
-          "text": "their house is gray and white",
-          "tokens": [
-            {
-              "w": "their",
-              "tag": "ok"
-            },
-            {
-              "w": "house",
-              "tag": "ok"
-            },
-            {
-              "w": "is",
-              "tag": "ok"
-            },
-            {
-              "w": "gray",
-              "tag": "ok"
-            },
-            {
-              "w": "and",
-              "tag": "ok"
-            },
-            {
-              "w": "white",
-              "tag": "ok"
-            }
-          ],
-          "wer": 0.0
-        }
-      }
-    },
-    {
-      "rowId": 15985,
-      "file": "clips/15985.wav",
-      "spec": "spec/15985.png",
+      "rowId": 16003,
+      "file": "clips/16003.wav",
+      "spec": "spec/16003.png",
       "speaker": "F03",
       "severity": "moderate",
-      "duration": 2.8,
-      "ref": "the prospects of cupping",
+      "duration": 2.75,
+      "ref": "help celebrate your brother's success",
       "systems": {
-        "whisper-medium": {
-          "text": "the prospect of carpet",
-          "tokens": [
-            {
-              "w": "the",
-              "tag": "ok"
-            },
-            {
-              "w": "prospect",
-              "tag": "sub"
-            },
-            {
-              "w": "of",
-              "tag": "ok"
-            },
-            {
-              "w": "carpet",
-              "tag": "sub"
-            }
-          ],
-          "wer": 0.5
-        },
         "whisper-large-v3": {
-          "text": "the prospect of cupid",
+          "text": "help us all be about the success",
           "tokens": [
             {
+              "w": "help",
+              "tag": "ok"
+            },
+            {
+              "w": "us",
+              "tag": "ins"
+            },
+            {
+              "w": "all",
+              "tag": "ins"
+            },
+            {
+              "w": "be",
+              "tag": "sub"
+            },
+            {
+              "w": "about",
+              "tag": "sub"
+            },
+            {
               "w": "the",
-              "tag": "ok"
-            },
-            {
-              "w": "prospect",
               "tag": "sub"
             },
             {
-              "w": "of",
+              "w": "success",
               "tag": "ok"
-            },
-            {
-              "w": "cupid",
-              "tag": "sub"
             }
           ],
-          "wer": 0.5
+          "wer": 0.8333333333333334
         },
         "Clear Voice": {
-          "text": "the prospect of capital",
+          "text": "help celebrate your brother's success",
           "tokens": [
             {
-              "w": "the",
+              "w": "help",
               "tag": "ok"
             },
             {
-              "w": "prospect",
-              "tag": "sub"
-            },
-            {
-              "w": "of",
+              "w": "celebrate",
               "tag": "ok"
             },
             {
-              "w": "capital",
-              "tag": "sub"
+              "w": "your",
+              "tag": "ok"
+            },
+            {
+              "w": "brother's",
+              "tag": "ok"
+            },
+            {
+              "w": "success",
+              "tag": "ok"
             }
           ],
-          "wer": 0.5
+          "wer": 0.0
         }
       }
     },
     {
-      "rowId": 12740,
-      "file": "clips/12740.wav",
-      "spec": "spec/12740.png",
-      "speaker": "M04",
+      "rowId": 13445,
+      "file": "clips/13445.wav",
+      "spec": "spec/13445.png",
+      "speaker": "M01",
       "severity": "severe",
-      "duration": 7.29,
-      "ref": "i feel i can play this weekend",
+      "duration": 4.84,
+      "ref": "their house is grey and white",
       "systems": {
-        "whisper-medium": {
-          "text": "i feel i can play this weekend",
-          "tokens": [
-            {
-              "w": "i",
-              "tag": "ok"
-            },
-            {
-              "w": "feel",
-              "tag": "ok"
-            },
-            {
-              "w": "i",
-              "tag": "ok"
-            },
-            {
-              "w": "can",
-              "tag": "ok"
-            },
-            {
-              "w": "play",
-              "tag": "ok"
-            },
-            {
-              "w": "this",
-              "tag": "ok"
-            },
-            {
-              "w": "weekend",
-              "tag": "ok"
-            }
-          ],
-          "wer": 0.0
-        },
         "whisper-large-v3": {
-          "text": "i feel i can play this weekend",
+          "text": "they're out in grey and white",
           "tokens": [
             {
-              "w": "i",
+              "w": "they're",
+              "tag": "sub"
+            },
+            {
+              "w": "out",
+              "tag": "sub"
+            },
+            {
+              "w": "in",
+              "tag": "sub"
+            },
+            {
+              "w": "grey",
               "tag": "ok"
             },
             {
-              "w": "feel",
+              "w": "and",
               "tag": "ok"
             },
             {
-              "w": "i",
-              "tag": "ok"
-            },
-            {
-              "w": "can",
-              "tag": "ok"
-            },
-            {
-              "w": "play",
-              "tag": "ok"
-            },
-            {
-              "w": "this",
-              "tag": "ok"
-            },
-            {
-              "w": "weekend",
+              "w": "white",
               "tag": "ok"
             }
           ],
-          "wer": 0.0
+          "wer": 0.6666666666666666
         },
         "Clear Voice": {
-          "text": "i feel high spin this weekend",
+          "text": "their house is grey and white",
           "tokens": [
             {
-              "w": "i",
+              "w": "their",
               "tag": "ok"
             },
             {
-              "w": "feel",
+              "w": "house",
               "tag": "ok"
             },
             {
-              "w": "high",
-              "tag": "sub"
-            },
-            {
-              "w": "spin",
-              "tag": "sub"
-            },
-            {
-              "w": "this",
+              "w": "is",
               "tag": "ok"
             },
             {
-              "w": "weekend",
+              "w": "grey",
+              "tag": "ok"
+            },
+            {
+              "w": "and",
+              "tag": "ok"
+            },
+            {
+              "w": "white",
               "tag": "ok"
             }
           ],
-          "wer": 0.4286
+          "wer": 0.0
+        }
+      }
+    },
+    {
+      "rowId": 13318,
+      "file": "clips/13318.wav",
+      "spec": "spec/13318.png",
+      "speaker": "M01",
+      "severity": "severe",
+      "duration": 2.02,
+      "ref": "loyal",
+      "systems": {
+        "whisper-large-v3": {
+          "text": "i love you",
+          "tokens": [
+            {
+              "w": "i",
+              "tag": "ins"
+            },
+            {
+              "w": "love",
+              "tag": "ins"
+            },
+            {
+              "w": "you",
+              "tag": "sub"
+            }
+          ],
+          "wer": 3.0
+        },
+        "Clear Voice": {
+          "text": "loyal",
+          "tokens": [
+            {
+              "w": "loyal",
+              "tag": "ok"
+            }
+          ],
+          "wer": 0.0
         }
       }
     }

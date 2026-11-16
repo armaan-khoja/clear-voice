@@ -141,14 +141,14 @@ export const Epilogue: React.FC<SceneProps> = ({part}) => {
 	const n = NUMBER_WORDS[data.nDysarthric] ?? String(data.nDysarthric);
 	return (
 		<Ground fadeIn={14} toPaper={part.frames - 28}>
-			<Line at={26} style={{top: 230, fontFamily: SERIF, fontSize: 60, color: H.text, lineHeight: 1.25}}>
+			<Line at={26} style={{top: 200, fontFamily: SERIF, fontSize: 56, color: H.text, lineHeight: 1.25}}>
 				{n} people with dysarthria recorded these words for research.
 			</Line>
-			<Line at={112} style={{top: 425, fontFamily: SERIF, fontSize: 60, color: H.text, lineHeight: 1.25}}>
-				Clear Voice got more of them right than the model it started from. Not all of them.
+			<Line at={112} style={{top: 380, fontFamily: SERIF, fontSize: 56, color: H.text, lineHeight: 1.25}}>
+				Clear Voice understood more of their words than the model it started from, with fewer single-word errors than any stock model we tested.
 			</Line>
-			<Line at={204} style={{top: 650, fontFamily: SERIF, fontSize: 60, color: H.dim, lineHeight: 1.25}}>
-				The next test is with the people it is for, on their own words.
+			<Line at={204} style={{top: 680, fontFamily: SERIF, fontSize: 56, color: H.dim, lineHeight: 1.25}}>
+				Next, we test it with the people it is for, on their own words.
 			</Line>
 		</Ground>
 	);

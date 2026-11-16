@@ -41,7 +41,6 @@ export const parts = (): Part[] => {
 		{key: 'how', kind: 'how', frames: F.how},
 		{key: 'results', kind: 'results', frames: F.results},
 		{key: 'honest', kind: 'honest', frames: F.honest},
-		{key: 'personal', kind: 'personal', frames: F.personal},
 		{key: 'figures', kind: 'figures', frames: F.figures},
 		{key: 'epilogue', kind: 'epilogue', frames: F.epilogue},
 		{key: 'close', kind: 'close', frames: F.close},

@@ -22,7 +22,7 @@ Submissions close at 11:59 PM ET, Sunday 15 November 2026.
 
 ## What each link shows
 
-- **Demo video:** 2 minutes 58 seconds, no narration: a real recording, the exam, figures from the paper, and the honest ending.
+- **Demo video:** 2 minutes 46 seconds, no narration: a real recording, the exam with examples where Clear Voice wins, the results led by single words, figures from the paper, and the ending.
 - **Code:** the README has the method, every result, the leakage test, the Say It corrector test and how to reproduce it all.
 - **Write-up:** the research paper by Suvir Aylawadi and Armaan Khoja (14 pages).
 
