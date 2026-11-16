@@ -1,7 +1,7 @@
 import {loadFont as loadCourier} from '@remotion/google-fonts/CourierPrime';
 import {loadFont as loadFranklin} from '@remotion/google-fonts/LibreFranklin';
 import {loadFont as loadNewsreader} from '@remotion/google-fonts/Newsreader';
-import {AbsoluteFill, interpolate, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Img, interpolate, staticFile, useCurrentFrame} from 'remotion';
 import {data, STOCK} from '../data';
 import {easeOut, useWave} from './audio';
 import type {SceneProps} from './Film';
@@ -151,5 +151,20 @@ export const Epilogue: React.FC<SceneProps> = ({part}) => {
 				The next test is with the people it is for, on their own words.
 			</Line>
 		</Ground>
+	);
+};
+
+// The research paper's figures on a plain page, for the looks that have no exam insert of their own.
+const PLAIN_FIGURES = ['paper/fig2-split.png', 'paper/fig4-headline.png', 'paper/fig5-models.png'];
+export const PaperFigures: React.FC<SceneProps> = () => {
+	const f = useCurrentFrame();
+	return (
+		<AbsoluteFill style={{backgroundColor: H.paper}}>
+			{PLAIN_FIGURES.map((file, i) => (
+				<AbsoluteFill key={file} style={{alignItems: 'center', justifyContent: 'center', opacity: interpolate(f, [i * 135, i * 135 + 12, (i + 1) * 135, (i + 1) * 135 + 12], [0, 1, 1, i === 2 ? 1 : 0], clamp)}}>
+					<Img src={staticFile(file)} style={{maxWidth: 1500, maxHeight: 760}} />
+				</AbsoluteFill>
+			))}
+		</AbsoluteFill>
 	);
 };

@@ -1,26 +1,32 @@
-# Submitting Clear Voice (Sunday)
+# Submitting Clear Voice
 
-First submission by 8 PM ET, final by 10 PM ET. Submissions close at 11:59 PM ET.
+Submissions close at 11:59 PM ET, Sunday 15 November 2026.
 
-## Ready now
+## The form, field by field
 
-- **Repo:** github.com/armaan-khoja/clear-voice. The README has the final results with fine-tuned whisper-medium, every model we tried, the leakage test, personalisation, and where it fails.
-- **Three versions of the demo video, about 2 minutes 13 seconds each,** in `video/out/`:
-  - `ClearVoice-Exam.mp4`: styled as an exam paper.
-  - `ClearVoice-Lab.mp4`: styled as a lab analysis.
-  - `ClearVoice-Proof.mp4`: a claim, then the evidence.
+| Field | Answer |
+|---|---|
+| Project Title | Clear Voice |
+| Your Full Name | Armaan Khoja |
+| Your School | Windermere Preparatory School |
+| Your Email | (your email) |
+| Building As | Team |
+| Team Name | Clear Voice |
+| One-Sentence Pitch | Clear Voice is OpenAI's Whisper fine-tuned for people with dysarthria; tested on people and sentences it never heard, it gets far fewer single words wrong than any stock Whisper model we tried (39% of letters wrong, against 57–96%). |
+| New to AI? | Leave as chosen, if true |
+| Code Link | https://github.com/armaan-khoja/clear-voice |
+| Write-up Link | https://github.com/armaan-khoja/clear-voice/blob/main/Research%20Paper%20Updated%20Final.pdf |
+| Write-up File | Attach `Research Paper Updated Final.pdf` from this folder |
+| Demo Video Link | https://armaan-khoja.github.io/clear-voice/ |
+| Track | Languages |
 
-  They have music and sound effects but no narration yet.
-- **Narration script:** `video/SCRIPT.md`, timed to the video, with the real numbers.
+## What each link shows
 
-## Only you can do these
+- **Demo video page:** the 2:58 video plays in the browser, with links to the code and the paper and a download button.
+- **Code:** the README has the method, every result, the leakage test, the Say It corrector test and how to reproduce it all.
+- **Write-up:** the research paper by Suvir Aylawadi and Armaan Khoja (14 pages).
 
-1. **Team names (done):** Armaan Khoja and Suvir Aylawadi, in the README and the closing shot.
-2. **Pick a look:** Exam, Lab or Proof.
-3. **Record the narration.** Read `video/SCRIPT.md` on a phone in a quiet room. Save it as `video/public/voiceover.wav`, then tell Claude to re-render. The music drops under your voice automatically.
-4. **Optional, for the best opening clip:** when macOS asks whether Claude can access your Downloads folder, allow it. Claude can then read the full per-clip predictions and pick the opening example by the documented rule. Without it, the opening comes from the random sample by a second documented rule.
-5. **Optional, the live demo:** the Gradio app in `app/` is built for a Hugging Face Space. Publishing it needs your Hugging Face token in Colab's Secrets (`HF_TOKEN`). Claude never handles the token.
+## Before you press submit
 
-## Turbo (done)
-
-Fine-tuned whisper-large-v3-turbo got 17.0% of validation words wrong, behind whisper-medium's 15.1%, so Clear Voice stays the fine-tuned whisper-medium. Turbo is listed in the README as a candidate. Nothing is running on Colab any more.
+- Open the demo video link once and press play.
+- Suvir: check the paper's abstract ("larger difference than the choice of the model" should be "than fine-tuning did") and add a line saying which AI tools helped, as the README does.

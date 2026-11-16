@@ -3,7 +3,7 @@ import {BIGGER, BIGGER_WORDS, data, severityWords, STOCK, wordCer} from '../../d
 import {easeOut, pct} from '../../shared/audio';
 import type {SceneProps} from '../../shared/Film';
 import {Film, Watermark} from '../../shared/Film';
-import {Epilogue, Prologue} from '../../shared/Human';
+import {Epilogue, PaperFigures, Prologue} from '../../shared/Human';
 import {clipEnd} from '../../shared/timeline';
 import {Analysis, Caption, L, MONO, Rise, SANS, Sheet, SYSTEMS} from './parts';
 
@@ -405,7 +405,7 @@ const Close: React.FC<SceneProps> = () => (
 export const LabFilm: React.FC = () => (
 	<Film
 		ground={L.ground}
-		scenes={{prologue: Prologue, epilogue: Epilogue, title: Title, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
+		scenes={{prologue: Prologue, epilogue: Epilogue, figures: PaperFigures, title: Title, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
 		music={{file: 'sfx/music.wav', volume: 0.2}}
 	/>
 );

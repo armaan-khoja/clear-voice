@@ -15,7 +15,7 @@ const AFTER_CLIP = T.afterClip; // frames a demo scene stays on after its record
 // A demo scene lasts its usual length, or longer when the recording is long (slow, severe speech).
 export const demoFrames = (clip: Clip): number => Math.max(F.demo, DEMO_PLAY + Math.round(clip.duration * FPS) + AFTER_CLIP);
 
-export type SceneKind = 'prologue' | 'epilogue' | 'title' | 'hook' | 'problem' | 'demo' | 'how' | 'results' | 'honest' | 'personal' | 'close';
+export type SceneKind = 'prologue' | 'epilogue' | 'figures' | 'title' | 'hook' | 'problem' | 'demo' | 'how' | 'results' | 'honest' | 'personal' | 'close';
 
 export type Part = {
 	key: string;
@@ -42,6 +42,7 @@ export const parts = (): Part[] => {
 		{key: 'results', kind: 'results', frames: F.results},
 		{key: 'honest', kind: 'honest', frames: F.honest},
 		{key: 'personal', kind: 'personal', frames: F.personal},
+		{key: 'figures', kind: 'figures', frames: F.figures},
 		{key: 'epilogue', kind: 'epilogue', frames: F.epilogue},
 		{key: 'close', kind: 'close', frames: F.close},
 	];

@@ -1,4 +1,4 @@
-import {interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
+import {Img, interpolate, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {Clip} from '../../data';
 import {BIGGER, data, STOCK, wordCer} from '../../data';
 import {easeOut, pct} from '../../shared/audio';
@@ -406,9 +406,58 @@ const Personal: React.FC<SceneProps> = ({part}) => {
 	);
 };
 
+// Three figures from the team's research paper, shown as an exam insert; the examiner rings what matters in each.
+export const PAPER_FIGURES = [
+	{file: 'paper/fig2-split.png', w: 1150, h: 728, ring: [0.74, 0.55, 0.99, 0.98], note: 'Only this cell counts.', caption: 'Figure 2: where each recording goes. The headline uses only the dark cell, new speakers reading new prompts.'},
+	{file: 'paper/fig4-headline.png', w: 1627, h: 585, ring: [0.885, 0.52, 0.985, 0.8], note: 'Lowest on single words: 39%', caption: 'Figure 4: the headline, all 690 test clips. Whiskers are 95% ranges over the eight speakers.'},
+	{file: 'paper/fig5-models.png', w: 1629, h: 584, ring: [0.68, 0.15, 0.84, 0.86], note: 'Fine-tuning cut single-word errors for every size', caption: 'Figure 5: each Whisper size before and after fine-tuning, on the same test.'},
+];
+const FIG_LEN = 135;
+
+const Figures: React.FC<SceneProps> = ({part}) => {
+	const f = useCurrentFrame();
+	const last = PAPER_FIGURES.length - 1;
+	return (
+		<Page n={8 + (part.total ?? 1)}>
+			<Fade at={4} style={{position: 'absolute', top: 116, left: LEFT, fontSize: 40, fontWeight: 800}}>
+				Insert: figures from our write-up
+			</Fade>
+			<Fade at={10} style={{position: 'absolute', top: 172, left: LEFT, fontSize: 22, color: E.soft}}>
+				From our research paper, “Clear Voice: Fine-Tuning Whisper for Dysarthric Speech”.
+			</Fade>
+			{PAPER_FIGURES.map((g, i) => {
+				const a = 22 + i * FIG_LEN;
+				const b = a + FIG_LEN;
+				const o = i === last ? interpolate(f, [a, a + 12], [0, 1], clamp) : interpolate(f, [a, a + 12, b, b + 12], [0, 1, 1, 0], clamp);
+				const sc = Math.min(1440 / g.w, 560 / g.h);
+				const w = g.w * sc;
+				const h = g.h * sc;
+				const top = 228;
+				const [x0, y0, x1, y1] = g.ring;
+				const rx = ((x1 - x0) * w) / 2 + 10;
+				const ry = ((y1 - y0) * h) / 2 + 10;
+				const cx = ((x0 + x1) / 2) * w;
+				const cy = ((y0 + y1) / 2) * h;
+				const per = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
+				const draw = easeOut((f - a - 32) / 18);
+				return (
+					<div key={g.file} style={{position: 'absolute', inset: 0, opacity: o}}>
+						<Img src={staticFile(g.file)} style={{position: 'absolute', left: LEFT, top, width: w, height: h, outline: `1.5px solid ${E.hair}`, outlineOffset: 0}} />
+						<svg style={{position: 'absolute', left: LEFT, top, overflow: 'visible'}} width={w} height={h}>
+							<ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="none" stroke={E.red} strokeWidth={4} strokeDasharray={per} strokeDashoffset={per * (1 - draw)} transform={`rotate(-4 ${cx} ${cy})`} />
+						</svg>
+						<div style={{position: 'absolute', left: LEFT, top: top + h + 26, width: COL - LEFT - 60, fontSize: 24, lineHeight: 1.4, color: E.soft}}>{g.caption}</div>
+						<div style={{position: 'absolute', left: COL + 16, top: 380, width: 240, fontFamily: HAND, fontSize: 34, lineHeight: 1.2, color: E.red, opacity: interpolate(f, [a + 48, a + 60], [0, 1], clamp)}}>{g.note}</div>
+					</div>
+				);
+			})}
+		</Page>
+	);
+};
+
 const Close: React.FC<SceneProps> = ({part}) => {
 	return (
-		<Page n={8 + (part.total ?? 1)} examinerColumn={false} turnOver={false}>
+		<Page n={9 + (part.total ?? 1)} examinerColumn={false} turnOver={false}>
 			<Fade at={6} style={{position: 'absolute', top: 300, left: 0, right: 0, textAlign: 'center', fontSize: 44, fontWeight: 800, letterSpacing: '0.06em'}}>
 				END OF PAPER
 			</Fade>
@@ -440,7 +489,7 @@ const TitleIn: React.FC<SceneProps> = (props) => {
 export const ExamFilm: React.FC = () => (
 	<Film
 		ground={E.paper}
-		scenes={{prologue: Prologue, epilogue: Epilogue, title: TitleIn, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
+		scenes={{prologue: Prologue, epilogue: Epilogue, figures: Figures, title: TitleIn, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
 		music={{file: 'sfx/music.wav', volume: 0.16}}
 		turn={{file: 'sfx/paper.wav', volume: 0.5, offset: -2}}
 	/>

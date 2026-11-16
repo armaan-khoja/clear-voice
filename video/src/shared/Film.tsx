@@ -7,6 +7,9 @@ export type SceneProps = {part: Part};
 
 type Sfx = {file: string; volume: number; offset?: number};
 
+// The music file is 120 s with its own fade in and out; the next copy starts 2 s before one ends.
+const MUSIC_STEP = (120 - 2) * 30;
+
 // Lays the scenes on the shared timeline and mixes the sound: music bed ducked under every real
 // recording, the recordings themselves, an optional voiceover, and the look's own page-turn sound.
 export const Film: React.FC<{
@@ -39,9 +42,11 @@ export const Film: React.FC<{
 		<AbsoluteFill style={{backgroundColor: ground}}>
 			{music ? (
 				// The bed starts as the exam begins, so its own fade-out lands where the quiet epilogue starts.
-				<Sequence from={musicFrom} layout="none">
-					<Audio src={staticFile(music.file)} volume={(f) => musicVolume(f + musicFrom)} />
-				</Sequence>
+				Array.from({length: Math.ceil((total - musicFrom) / MUSIC_STEP)}, (_, k) => musicFrom + k * MUSIC_STEP).map((from) => (
+					<Sequence key={from} from={from} layout="none">
+						<Audio src={staticFile(music.file)} volume={(f) => musicVolume(f + from)} />
+					</Sequence>
+				))
 			) : null}
 			{data.hasVoiceover ? <Audio src={staticFile('voiceover.wav')} /> : null}
 			{ps.map((p, i) => {
