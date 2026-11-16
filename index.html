@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clear Voice: demo video</title>
+<meta name="description" content="Whisper fine-tuned for people with dysarthria, tested on people and sentences it never heard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;600&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#121211;--text:#F1EEE6;--dim:rgba(241,238,230,.64);--line:rgba(241,238,230,.18)}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--text);font:17px/1.55 "Libre Franklin",system-ui,sans-serif;padding:48px 16px 64px}
+main{max-width:1080px;margin:0 auto}
+h1{font:500 52px/1.05 Newsreader,Georgia,serif;letter-spacing:-.01em}
+.lede{color:var(--dim);margin-top:12px;max-width:64ch}
+video{display:block;width:100%;aspect-ratio:16/9;margin-top:28px;background:#000;border-radius:6px}
+.links{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:22px}
+a{color:var(--text);text-decoration-color:var(--line);text-underline-offset:4px}
+a:hover{text-decoration-color:var(--text)}
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:14px;max-width:80ch}
+@media (max-width:600px){h1{font-size:40px}body{padding-top:32px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Clear Voice</h1>
+  <p class="lede">Whisper fine-tuned for people with dysarthria, tested on people and sentences it never heard. Armaan Khoja and Suvir Aylawadi, Windermere Preparatory School.</p>
+  <video controls playsinline preload="metadata" poster="poster.jpg">
+    <source src="ClearVoice-demo.mp4" type="video/mp4">
+  </video>
+  <div class="links">
+    <a href="https://github.com/armaan-khoja/clear-voice">Code and results on GitHub</a>
+    <a href="https://github.com/armaan-khoja/clear-voice/blob/main/Research%20Paper%20Updated%20Final.pdf">Research paper (PDF)</a>
+    <a href="ClearVoice-demo.mp4" download>Download the video (MP4)</a>
+  </div>
+  <footer>Recordings from the TORGO database (Rudzicz, Namasivayam and Wolff, 2012), used for non-commercial research. Clear Voice is a research prototype, not a medical device.</footer>
+</main>
+</body>
+</html>
