@@ -4,6 +4,7 @@
   "hookPlay": 45,
   "demoPlay": 40,
   "frames": {
+    "prologue": 650,
     "title": 165,
     "hook": 400,
     "problem": 390,
@@ -12,7 +13,9 @@
     "results": 600,
     "honest": 330,
     "personal": 300,
+    "epilogue": 330,
     "close": 270
   },
-  "afterClip": 240
+  "afterClip": 240,
+  "prologuePlay": 45
 }

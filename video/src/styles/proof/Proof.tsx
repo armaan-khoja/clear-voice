@@ -5,6 +5,7 @@ import {BIGGER, data, severityWords, STOCK, wordCer} from '../../data';
 import {easeOut, pct, useWave} from '../../shared/audio';
 import type {SceneProps} from '../../shared/Film';
 import {Film, Watermark} from '../../shared/Film';
+import {Epilogue, Prologue} from '../../shared/Human';
 import {clipEnd, OVERLAP} from '../../shared/timeline';
 
 const {fontFamily: G} = loadFont('normal', {weights: ['400', '500', '800'], subsets: ['latin']});
@@ -368,7 +369,7 @@ const Close: React.FC<SceneProps> = () => (
 export const ProofFilm: React.FC = () => (
 	<Film
 		ground={P.ground}
-		scenes={{title: Title, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
+		scenes={{prologue: Prologue, epilogue: Epilogue, title: Title, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
 		music={{file: 'sfx/music.wav', volume: 0.24}}
 		turn={{file: 'sfx/whoosh.wav', volume: 0.12, offset: -6}}
 	/>

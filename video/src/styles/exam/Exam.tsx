@@ -4,6 +4,7 @@ import {BIGGER, data, STOCK, wordCer} from '../../data';
 import {easeOut, pct} from '../../shared/audio';
 import type {SceneProps} from '../../shared/Film';
 import {Film, Watermark} from '../../shared/Film';
+import {Epilogue, Prologue} from '../../shared/Human';
 import {clipEnd} from '../../shared/timeline';
 import {Answer, Box, CANDIDATES, COL, E, Fade, HAND, LEFT, Page, PRINT, Question, Tick, TYPE, WaveFigure} from './parts';
 
@@ -426,10 +427,20 @@ const Close: React.FC<SceneProps> = ({part}) => {
 	);
 };
 
+// After the dark prologue the cover page fades up instead of appearing at once.
+const TitleIn: React.FC<SceneProps> = (props) => {
+	const f = useCurrentFrame();
+	return (
+		<div style={{position: 'absolute', inset: 0, opacity: interpolate(f, [0, 20], [0, 1], clamp)}}>
+			<Title {...props} />
+		</div>
+	);
+};
+
 export const ExamFilm: React.FC = () => (
 	<Film
 		ground={E.paper}
-		scenes={{title: Title, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
+		scenes={{prologue: Prologue, epilogue: Epilogue, title: TitleIn, hook: Hook, problem: Problem, demo: Demo, how: How, results: Results, honest: Honest, personal: Personal, close: Close}}
 		music={{file: 'sfx/music.wav', volume: 0.16}}
 		turn={{file: 'sfx/paper.wav', volume: 0.5, offset: -2}}
 	/>

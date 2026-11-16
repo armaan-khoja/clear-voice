@@ -19,17 +19,30 @@ export const Film: React.FC<{
 	const s = starts(ps);
 	const total = totalFrames();
 	const windows = speechWindows();
+	const pro = ps.findIndex((p) => p.kind === 'prologue');
+	const musicFrom = pro < 0 ? 0 : s[pro] + ps[pro].frames - 20;
 	const musicVolume = (f: number) => {
 		const fade = interpolate(f, [0, 45, total - 75, total], [0, 1, 1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
 		const duck = windows.reduce(
 			(v, [a, b]) => Math.min(v, interpolate(f, [a - 12, a, b, b + 15], [1, 0.12, 0.12, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})),
 			1,
 		);
-		return (music?.volume ?? 0) * (data.hasVoiceover ? 0.6 : 1) * fade * duck;
+		// No music under the prologue and epilogue: the recording and the silence carry those scenes.
+		const quiet = ps.reduce((v, p, i) => {
+			if (p.kind !== 'prologue' && p.kind !== 'epilogue') return v;
+			const [a, b] = [s[i], s[i] + p.frames];
+			return Math.min(v, interpolate(f, [a - 30, a, b - 20, b + 40], [1, 0, 0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'}));
+		}, 1);
+		return (music?.volume ?? 0) * (data.hasVoiceover ? 0.6 : 1) * fade * duck * quiet;
 	};
 	return (
 		<AbsoluteFill style={{backgroundColor: ground}}>
-			{music ? <Audio src={staticFile(music.file)} volume={musicVolume} /> : null}
+			{music ? (
+				// The bed starts as the exam begins, so its own fade-out lands where the quiet epilogue starts.
+				<Sequence from={musicFrom} layout="none">
+					<Audio src={staticFile(music.file)} volume={(f) => musicVolume(f + musicFrom)} />
+				</Sequence>
+			) : null}
 			{data.hasVoiceover ? <Audio src={staticFile('voiceover.wav')} /> : null}
 			{ps.map((p, i) => {
 				const Scene = scenes[p.kind];
@@ -45,7 +58,7 @@ export const Film: React.FC<{
 				);
 			})}
 			{turn
-				? s.slice(1).map((st, i) => (
+				? s.slice(1).map((st, i) => ps[i + 1].kind === 'epilogue' ? null : (
 						<Sequence key={`turn${i}`} from={st + (turn.offset ?? 0)} durationInFrames={40} layout="none">
 							<Audio src={staticFile(turn.file)} volume={turn.volume} />
 						</Sequence>

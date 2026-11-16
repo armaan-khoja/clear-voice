@@ -7,6 +7,7 @@ import T from './timeline.json';
 export const FPS = T.fps;
 export const OVERLAP = T.overlap; // frames each scene overlaps the one before it (its entrance plays over the previous scene)
 export const HOOK_PLAY = T.hookPlay; // frame within the hook where the opening recording starts
+export const PROLOGUE_PLAY = T.prologuePlay; // frame within the prologue where its recording starts
 export const DEMO_PLAY = T.demoPlay; // frame within each demo scene where its recording starts
 const F = T.frames;
 const AFTER_CLIP = T.afterClip; // frames a demo scene stays on after its recording ends
@@ -14,7 +15,7 @@ const AFTER_CLIP = T.afterClip; // frames a demo scene stays on after its record
 // A demo scene lasts its usual length, or longer when the recording is long (slow, severe speech).
 export const demoFrames = (clip: Clip): number => Math.max(F.demo, DEMO_PLAY + Math.round(clip.duration * FPS) + AFTER_CLIP);
 
-export type SceneKind = 'title' | 'hook' | 'problem' | 'demo' | 'how' | 'results' | 'honest' | 'personal' | 'close';
+export type SceneKind = 'prologue' | 'epilogue' | 'title' | 'hook' | 'problem' | 'demo' | 'how' | 'results' | 'honest' | 'personal' | 'close';
 
 export type Part = {
 	key: string;
@@ -32,6 +33,7 @@ export const parts = (): Part[] => {
 	const demos = demoClips();
 	const total = demos.length;
 	const list: Part[] = [
+		{key: 'prologue', kind: 'prologue', frames: F.prologue, clip: data.opening, playAt: PROLOGUE_PLAY},
 		{key: 'title', kind: 'title', frames: F.title},
 		{key: 'hook', kind: 'hook', frames: F.hook, clip: data.opening, playAt: HOOK_PLAY},
 		{key: 'problem', kind: 'problem', frames: F.problem},
@@ -40,6 +42,7 @@ export const parts = (): Part[] => {
 		{key: 'results', kind: 'results', frames: F.results},
 		{key: 'honest', kind: 'honest', frames: F.honest},
 		{key: 'personal', kind: 'personal', frames: F.personal},
+		{key: 'epilogue', kind: 'epilogue', frames: F.epilogue},
 		{key: 'close', kind: 'close', frames: F.close},
 	];
 	return list.map((p) => ({...p, total}));
